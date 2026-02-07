@@ -1,29 +1,29 @@
-# Butterfly OS 13 (Python Prototype)
+# Butterfly OS 13 (прототип на Python)
 
-This is a Tkinter-based prototype that mimics a Windows-like desktop called **Butterfly OS 13**.
+Это прототип на Tkinter, имитирующий Windows‑подобный рабочий стол под названием **Butterfly OS 13**.
 
-## Features
-- Desktop with draggable icons (positions saved).
-- Start menu with File Explorer, Settings, App Store, Control Center, Lock, Switch User.
-- Taskbar with running app buttons.
-- User management with password-based login and lock screen.
-- Themes: Light, Dark, Butterfly Neon.
-- File Explorer with upload, folders, and text/image viewers.
-- `.butterfly` app packages with manifest + Python code.
-- Simple App Store that installs `.butterfly` apps.
-- Rounded buttons and colorful emoji icons.
-- Control Center includes 25 quick feature toggles.
-- Windows open in full-screen mode and the OS taskbar is hidden for immersion.
+## Возможности
+- Рабочий стол с перетаскиванием иконок (позиции сохраняются).
+- Меню «Пуск»: Проводник, Настройки, Магазин приложений, Центр управления, блокировка, смена пользователя.
+- Панель задач с кнопками запущенных приложений.
+- Управление пользователями с паролем, экран входа и блокировки.
+- Темы: светлая, тёмная и Butterfly Neon.
+- Проводник с загрузкой файлов, папками и просмотром текста/картинок.
+- Пакеты `.butterfly` с манифестом и Python‑кодом внутри.
+- Простой магазин приложений для установки пакетов.
+- Скруглённые кнопки и цветные emoji‑иконки.
+- Центр управления с 25 быстрыми переключателями.
+- Окна открываются в полноэкранном режиме для эффекта «настоящей ОС».
 
-## Run
+## Запуск
 ```bash
 python main.py
 ```
 
-Default user: `admin` / `admin`.
+Пользователь по умолчанию: `admin` / `admin`.
 
-## Data layout
-- `butterfly_fs/` – simulated file system for File Explorer.
-- `apps_installed/` – installed `.butterfly` apps.
-- `store/` – available `.butterfly` apps for App Store.
-- `data/` – settings and user accounts.
+## Структура данных
+- `butterfly_fs/` – файловая система прототипа (для проводника).
+- `apps_installed/` – установленные `.butterfly` приложения.
+- `store/` – доступные `.butterfly` пакеты для магазина.
+- `data/` – настройки и пользователи.

@@ -50,46 +50,52 @@ THEMES = {
     },
 }
 
+THEME_LABELS = {
+    "light": "Светлая",
+    "dark": "Тёмная",
+    "neon": "Butterfly Neon",
+}
+
 ICON_STYLES = {
-    "File Explorer": {"color": "#4e79ff", "symbol": "📁"},
-    "Settings": {"color": "#7a7a7a", "symbol": "⚙️"},
-    "App Store": {"color": "#ff7b2f", "symbol": "🛒"},
-    "Control Center": {"color": "#20c997", "symbol": "🎛️"},
-    "Games Hub": {"color": "#ff5c7a", "symbol": "🎮"},
-    "Media Player": {"color": "#6f42c1", "symbol": "🎵"},
-    "Gallery": {"color": "#0dcaf0", "symbol": "🖼️"},
-    "Calendar": {"color": "#ffc107", "symbol": "📅"},
-    "Calculator": {"color": "#198754", "symbol": "🧮"},
-    "Weather": {"color": "#0d6efd", "symbol": "☀️"},
-    "Documents": {"color": "#fd7e14", "symbol": "📄"},
+    "Проводник": {"color": "#4e79ff", "symbol": "📁"},
+    "Настройки": {"color": "#7a7a7a", "symbol": "⚙️"},
+    "Магазин приложений": {"color": "#ff7b2f", "symbol": "🛒"},
+    "Центр управления": {"color": "#20c997", "symbol": "🎛️"},
+    "Игры": {"color": "#ff5c7a", "symbol": "🎮"},
+    "Медиаплеер": {"color": "#6f42c1", "symbol": "🎵"},
+    "Галерея": {"color": "#0dcaf0", "symbol": "🖼️"},
+    "Календарь": {"color": "#ffc107", "symbol": "📅"},
+    "Калькулятор": {"color": "#198754", "symbol": "🧮"},
+    "Погода": {"color": "#0d6efd", "symbol": "☀️"},
+    "Документы": {"color": "#fd7e14", "symbol": "📄"},
 }
 
 FEATURE_TOGGLES = [
-    "Focus Assist",
-    "Night Light",
-    "Wi-Fi",
+    "Фокус-режим",
+    "Ночной свет",
+    "Wi‑Fi",
     "Bluetooth",
-    "Airplane Mode",
-    "Battery Saver",
-    "Notifications",
-    "Quick Share",
-    "Cloud Sync",
-    "Auto Update",
-    "Voice Assistant",
-    "Screen Recorder",
-    "Performance Mode",
-    "Accessibility",
-    "Spatial Audio",
-    "Game Mode",
-    "Clipboard History",
-    "Virtual Desktops",
-    "Auto Brightness",
-    "Theme Scheduler",
-    "Widget Panel",
-    "Security Shield",
+    "Режим полета",
+    "Экономия батареи",
+    "Уведомления",
+    "Быстрая отправка",
+    "Облачная синхронизация",
+    "Автообновления",
+    "Голосовой помощник",
+    "Запись экрана",
+    "Режим производительности",
+    "Доступность",
+    "Пространственный звук",
+    "Игровой режим",
+    "История буфера",
+    "Виртуальные рабочие столы",
+    "Автояркость",
+    "Планировщик тем",
+    "Панель виджетов",
+    "Защита системы",
     "VPN",
-    "Device Finder",
-    "System Telemetry",
+    "Поиск устройства",
+    "Системная телеметрия",
 ]
 
 
@@ -209,7 +215,6 @@ class Window(tk.Toplevel):
         self.on_close = on_close
         self.configure(bg=theme["window_bg"])
         self.title(title)
-        self.overrideredirect(True)
         self.attributes("-fullscreen", True)
         self.geometry(f"{self.winfo_screenwidth()}x{self.winfo_screenheight()}+0+0")
         self.protocol("WM_DELETE_WINDOW", self.close)
@@ -255,7 +260,7 @@ class Window(tk.Toplevel):
 
 class FileExplorer(Window):
     def __init__(self, master, theme, path):
-        super().__init__(master, "File Explorer", theme)
+        super().__init__(master, "Проводник", theme)
         self.path = path
         body = tk.Frame(self, bg=theme["window_bg"])
         body.pack(fill="both", expand=True)
@@ -267,9 +272,9 @@ class FileExplorer(Window):
         self.listbox.bind("<Double-Button-1>", self.open_item)
         buttons = tk.Frame(body, bg=theme["window_bg"])
         buttons.pack(side="right", fill="y", padx=10, pady=10)
-        RoundedButton(buttons, "Upload", self.upload_file, theme, width=140).pack(pady=4)
-        RoundedButton(buttons, "New Folder", self.create_folder, theme, width=140).pack(pady=4)
-        RoundedButton(buttons, "Open", self.open_item, theme, width=140).pack(pady=4)
+        RoundedButton(buttons, "Загрузить", self.upload_file, theme, width=140).pack(pady=4)
+        RoundedButton(buttons, "Новая папка", self.create_folder, theme, width=140).pack(pady=4)
+        RoundedButton(buttons, "Открыть", self.open_item, theme, width=140).pack(pady=4)
         self.refresh()
 
     def refresh(self):
@@ -292,7 +297,7 @@ class FileExplorer(Window):
         if name.lower().endswith((".png", ".gif", ".ppm", ".pgm")):
             ImageViewer(self.master, self.theme, full_path)
             return
-        messagebox.showinfo("Butterfly OS", f"File: {name}\nPath: {full_path}")
+        messagebox.showinfo("Butterfly OS", f"Файл: {name}\nПуть: {full_path}")
 
     def upload_file(self):
         file_path = filedialog.askopenfilename()
@@ -302,7 +307,7 @@ class FileExplorer(Window):
         self.refresh()
 
     def create_folder(self):
-        folder_name = tk.simpledialog.askstring("New Folder", "Folder name:")
+        folder_name = tk.simpledialog.askstring("Новая папка", "Имя папки:")
         if not folder_name:
             return
         os.makedirs(os.path.join(self.path, folder_name), exist_ok=True)
@@ -311,7 +316,7 @@ class FileExplorer(Window):
 
 class TextViewer(Window):
     def __init__(self, master, theme, file_path):
-        super().__init__(master, f"Text - {os.path.basename(file_path)}", theme)
+        super().__init__(master, f"Текст - {os.path.basename(file_path)}", theme)
         body = tk.Frame(self, bg=theme["window_bg"])
         body.pack(fill="both", expand=True)
         text = tk.Text(body, wrap="word")
@@ -322,7 +327,7 @@ class TextViewer(Window):
 
 class ImageViewer(Window):
     def __init__(self, master, theme, file_path):
-        super().__init__(master, f"Image - {os.path.basename(file_path)}", theme)
+        super().__init__(master, f"Фото - {os.path.basename(file_path)}", theme)
         body = tk.Frame(self, bg=theme["window_bg"])
         body.pack(fill="both", expand=True)
         try:
@@ -332,7 +337,7 @@ class ImageViewer(Window):
         except tk.TclError:
             tk.Label(
                 body,
-                text="Image format not supported by Tk.",
+                text="Формат изображения не поддерживается Tk.",
                 bg=theme["window_bg"],
                 fg=theme["text"],
             ).pack(expand=True)
@@ -340,7 +345,7 @@ class ImageViewer(Window):
 
 class AppInstaller(Window):
     def __init__(self, master, theme, on_install):
-        super().__init__(master, "Butterfly App Store", theme)
+        super().__init__(master, "Магазин приложений", theme)
         self.on_install = on_install
         body = tk.Frame(self, bg=theme["window_bg"])
         body.pack(fill="both", expand=True)
@@ -349,7 +354,7 @@ class AppInstaller(Window):
         for entry in sorted(os.listdir(STORE_DIR)):
             if entry.endswith(".butterfly"):
                 self.listbox.insert(tk.END, entry)
-        RoundedButton(body, "Install", self.install_selected, theme, width=120).pack(side="right", padx=10)
+        RoundedButton(body, "Установить", self.install_selected, theme, width=120).pack(side="right", padx=10)
 
     def install_selected(self):
         selection = self.listbox.curselection()
@@ -359,69 +364,69 @@ class AppInstaller(Window):
         src = os.path.join(STORE_DIR, name)
         dst = os.path.join(APPS_DIR, name)
         if os.path.exists(dst):
-            messagebox.showinfo("Butterfly OS", "Already installed.")
+            messagebox.showinfo("Butterfly OS", "Уже установлено.")
             return
         shutil.copytree(src, dst)
         self.on_install()
-        messagebox.showinfo("Butterfly OS", f"Installed {name}.")
+        messagebox.showinfo("Butterfly OS", f"Установлено: {name}.")
 
 
 class SettingsWindow(Window):
     def __init__(self, master, theme, config, users, on_update):
-        super().__init__(master, "Settings", theme)
+        super().__init__(master, "Настройки", theme)
         self.config = config
         self.users = users
         self.on_update = on_update
         body = tk.Frame(self, bg=theme["window_bg"])
         body.pack(fill="both", expand=True, padx=10, pady=10)
-        tk.Label(body, text="Theme", bg=theme["window_bg"], fg=theme["text"]).pack(anchor="w")
+        tk.Label(body, text="Тема", bg=theme["window_bg"], fg=theme["text"]).pack(anchor="w")
         self.theme_var = tk.StringVar(value=config.get("theme", "light"))
         for key in THEMES:
             tk.Radiobutton(
                 body,
-                text=key.title(),
+                text=THEME_LABELS.get(key, key.title()),
                 variable=self.theme_var,
                 value=key,
                 bg=theme["window_bg"],
                 fg=theme["text"],
                 selectcolor=theme["window_bg"],
             ).pack(anchor="w")
-        RoundedButton(body, "Apply Theme", self.apply_theme, theme, width=140).pack(pady=6)
-        tk.Label(body, text="Users", bg=theme["window_bg"], fg=theme["text"]).pack(anchor="w", pady=(12, 0))
+        RoundedButton(body, "Применить тему", self.apply_theme, theme, width=160).pack(pady=6)
+        tk.Label(body, text="Пользователи", bg=theme["window_bg"], fg=theme["text"]).pack(anchor="w", pady=(12, 0))
         self.user_list = tk.Listbox(body, height=4)
         self.user_list.pack(fill="x")
         for name in self.users["users"]:
             self.user_list.insert(tk.END, name)
-        RoundedButton(body, "Add User", self.add_user, theme, width=140).pack(pady=4)
+        RoundedButton(body, "Добавить пользователя", self.add_user, theme, width=200).pack(pady=4)
 
     def apply_theme(self):
         self.config["theme"] = self.theme_var.get()
         self.on_update()
 
     def add_user(self):
-        username = tk.simpledialog.askstring("New User", "Username:")
+        username = tk.simpledialog.askstring("Новый пользователь", "Имя пользователя:")
         if not username:
             return
         if username in self.users["users"]:
-            messagebox.showerror("Butterfly OS", "User already exists.")
+            messagebox.showerror("Butterfly OS", "Пользователь уже существует.")
             return
-        password = tk.simpledialog.askstring("New User", "Password:", show="*")
+        password = tk.simpledialog.askstring("Новый пользователь", "Пароль:", show="*")
         if not password:
             return
         self.users["users"][username] = {"password": password}
         save_json(USERS_PATH, self.users)
         self.user_list.insert(tk.END, username)
-        messagebox.showinfo("Butterfly OS", "User created.")
+        messagebox.showinfo("Butterfly OS", "Пользователь создан.")
 
 
 class ControlCenter(Window):
     def __init__(self, master, theme, config):
-        super().__init__(master, "Control Center", theme)
+        super().__init__(master, "Центр управления", theme)
         body = tk.Frame(self, bg=theme["window_bg"])
         body.pack(fill="both", expand=True, padx=10, pady=10)
         tk.Label(
             body,
-            text="Quick Features (25)",
+            text="Быстрые функции (25)",
             bg=theme["window_bg"],
             fg=theme["text"],
             font=("Segoe UI", 12, "bold"),
@@ -477,19 +482,19 @@ class LoginScreen(tk.Toplevel):
         frame.pack(expand=True)
         tk.Label(
             frame,
-            text="Welcome to Butterfly OS",
+            text="Добро пожаловать в Butterfly OS",
             font=("Segoe UI", 20, "bold"),
             bg=theme["desktop_bg"],
             fg=theme["accent"],
         ).pack(pady=10)
-        tk.Label(frame, text="Select user", bg=theme["desktop_bg"], fg=theme["text"]).pack()
+        tk.Label(frame, text="Выберите пользователя", bg=theme["desktop_bg"], fg=theme["text"]).pack()
         self.user_var = tk.StringVar(value=list(users["users"].keys())[0])
         user_menu = ttk.Combobox(frame, textvariable=self.user_var, values=list(users["users"].keys()))
         user_menu.pack(pady=4)
-        tk.Label(frame, text="Password", bg=theme["desktop_bg"], fg=theme["text"]).pack()
+        tk.Label(frame, text="Пароль", bg=theme["desktop_bg"], fg=theme["text"]).pack()
         self.pass_entry = tk.Entry(frame, show="*")
         self.pass_entry.pack(pady=4)
-        RoundedButton(frame, "Login", self.login, theme, width=140).pack(pady=8)
+        RoundedButton(frame, "Войти", self.login, theme, width=140).pack(pady=8)
 
     def login(self):
         user = self.user_var.get()
@@ -498,7 +503,7 @@ class LoginScreen(tk.Toplevel):
             self.on_login(user)
             self.destroy()
         else:
-            messagebox.showerror("Butterfly OS", "Invalid password.")
+            messagebox.showerror("Butterfly OS", "Неверный пароль.")
 
 
 class DesktopApp(tk.Tk):
@@ -509,7 +514,6 @@ class DesktopApp(tk.Tk):
         self.users = load_json(USERS_PATH, DEFAULT_USERS)
         self.theme = THEMES[self.config_data.get("theme", "light")]
         self.title("Butterfly OS 13")
-        self.overrideredirect(True)
         self.attributes("-fullscreen", True)
         self.geometry(f"{self.winfo_screenwidth()}x{self.winfo_screenheight()}+0+0")
         self.configure(bg=self.theme["desktop_bg"])
@@ -519,7 +523,7 @@ class DesktopApp(tk.Tk):
         self.taskbar.place(relx=0, rely=1, anchor="sw", relwidth=1)
         self.start_button = RoundedButton(
             self.taskbar,
-            "Start",
+            "Пуск",
             self.toggle_start_menu,
             self.theme,
             width=90,
@@ -560,30 +564,30 @@ class DesktopApp(tk.Tk):
         y = self.winfo_height() - 300
         self.start_menu.geometry(f"220x260+{x}+{y}")
         buttons = [
-            ("File Explorer", lambda: self.launch_app("explorer")),
-            ("Settings", lambda: self.launch_app("settings")),
-            ("App Store", lambda: self.launch_app("store")),
-            ("Control Center", lambda: self.launch_app("control")),
-            ("Switch User", self.show_login),
-            ("Lock", self.lock_screen),
-            ("Shutdown", self.quit),
+            ("Проводник", lambda: self.launch_app("explorer")),
+            ("Настройки", lambda: self.launch_app("settings")),
+            ("Магазин приложений", lambda: self.launch_app("store")),
+            ("Центр управления", lambda: self.launch_app("control")),
+            ("Сменить пользователя", self.show_login),
+            ("Заблокировать", self.lock_screen),
+            ("Выключить", self.quit),
         ]
         for label, command in buttons:
             RoundedButton(self.start_menu, label, command, self.theme, width=190).pack(padx=8, pady=4)
 
     def _build_icons(self):
         self.icons = {
-            "File Explorer": {"app": "explorer"},
-            "Settings": {"app": "settings"},
-            "App Store": {"app": "store"},
-            "Control Center": {"app": "control"},
-            "Games Hub": {"app": "games"},
-            "Media Player": {"app": "media"},
-            "Gallery": {"app": "gallery"},
-            "Calendar": {"app": "calendar"},
-            "Calculator": {"app": "calculator"},
-            "Weather": {"app": "weather"},
-            "Documents": {"app": "documents"},
+            "Проводник": {"app": "explorer"},
+            "Настройки": {"app": "settings"},
+            "Магазин приложений": {"app": "store"},
+            "Центр управления": {"app": "control"},
+            "Игры": {"app": "games"},
+            "Медиаплеер": {"app": "media"},
+            "Галерея": {"app": "gallery"},
+            "Календарь": {"app": "calendar"},
+            "Калькулятор": {"app": "calculator"},
+            "Погода": {"app": "weather"},
+            "Документы": {"app": "documents"},
         }
         for app in self.get_installed_apps():
             self.icons[app] = {"app": app}
@@ -705,60 +709,60 @@ class DesktopApp(tk.Tk):
 
     def launch_app(self, app_name):
         if app_name == "explorer":
-            self._open_window("File Explorer", lambda: FileExplorer(self, self.theme, FS_DIR))
+            self._open_window("Проводник", lambda: FileExplorer(self, self.theme, FS_DIR))
             return
         if app_name == "settings":
             self._open_window(
-                "Settings",
+                "Настройки",
                 lambda: SettingsWindow(self, self.theme, self.config_data, self.users, self.reload_theme),
             )
             return
         if app_name == "store":
-            self._open_window("App Store", lambda: AppInstaller(self, self.theme, self.refresh_apps))
+            self._open_window("Магазин приложений", lambda: AppInstaller(self, self.theme, self.refresh_apps))
             return
         if app_name == "control":
-            self._open_window("Control Center", lambda: ControlCenter(self, self.theme, self.config_data))
+            self._open_window("Центр управления", lambda: ControlCenter(self, self.theme, self.config_data))
             return
         if app_name == "games":
             self._open_window(
-                "Games Hub",
-                lambda: GenericAppWindow(self, self.theme, "Games Hub", "Your arcade of Butterfly OS mini-games."),
+                "Игры",
+                lambda: GenericAppWindow(self, self.theme, "Игры", "Коллекция мини-игр Butterfly OS."),
             )
             return
         if app_name == "media":
             self._open_window(
-                "Media Player",
-                lambda: GenericAppWindow(self, self.theme, "Media Player", "Play your favorite tracks and videos."),
+                "Медиаплеер",
+                lambda: GenericAppWindow(self, self.theme, "Медиаплеер", "Воспроизведение музыки и видео."),
             )
             return
         if app_name == "gallery":
             self._open_window(
-                "Gallery",
-                lambda: GenericAppWindow(self, self.theme, "Gallery", "Browse photos stored in Butterfly FS."),
+                "Галерея",
+                lambda: GenericAppWindow(self, self.theme, "Галерея", "Просмотр фото из Butterfly FS."),
             )
             return
         if app_name == "calendar":
             self._open_window(
-                "Calendar",
-                lambda: GenericAppWindow(self, self.theme, "Calendar", "Manage your schedule and reminders."),
+                "Календарь",
+                lambda: GenericAppWindow(self, self.theme, "Календарь", "Планирование задач и напоминаний."),
             )
             return
         if app_name == "calculator":
             self._open_window(
-                "Calculator",
-                lambda: GenericAppWindow(self, self.theme, "Calculator", "Quick calculations with style."),
+                "Калькулятор",
+                lambda: GenericAppWindow(self, self.theme, "Калькулятор", "Быстрые вычисления."),
             )
             return
         if app_name == "weather":
             self._open_window(
-                "Weather",
-                lambda: GenericAppWindow(self, self.theme, "Weather", "Forecasts and live conditions."),
+                "Погода",
+                lambda: GenericAppWindow(self, self.theme, "Погода", "Прогноз и текущие условия."),
             )
             return
         if app_name == "documents":
             self._open_window(
-                "Documents",
-                lambda: GenericAppWindow(self, self.theme, "Documents", "Open and manage your documents."),
+                "Документы",
+                lambda: GenericAppWindow(self, self.theme, "Документы", "Управление файлами и документами."),
             )
             return
         if app_name.endswith(".butterfly"):
@@ -784,7 +788,7 @@ class DesktopApp(tk.Tk):
         manifest_path = os.path.join(app_path, "manifest.json")
         main_path = os.path.join(app_path, "main.py")
         if not os.path.exists(manifest_path) or not os.path.exists(main_path):
-            messagebox.showerror("Butterfly OS", "Invalid Butterfly app.")
+            messagebox.showerror("Butterfly OS", "Неверный пакет Butterfly.")
             return
         with open(manifest_path, "r", encoding="utf-8") as file:
             manifest = json.load(file)
@@ -799,7 +803,7 @@ class DesktopApp(tk.Tk):
         except Exception as exc:  # pragma: no cover
             tk.Label(
                 frame,
-                text=f"App error: {exc}",
+                text=f"Ошибка приложения: {exc}",
                 bg=self.theme["window_bg"],
                 fg=self.theme["text"],
             ).pack(padx=20, pady=20)
@@ -828,12 +832,12 @@ class DesktopApp(tk.Tk):
         frame.pack(expand=True)
         tk.Label(
             frame,
-            text="Locked",
+            text="Заблокировано",
             font=("Segoe UI", 20, "bold"),
             bg=self.theme["desktop_bg"],
             fg=self.theme["accent"],
         ).pack(pady=10)
-        tk.Label(frame, text="Password", bg=self.theme["desktop_bg"], fg=self.theme["text"]).pack()
+        tk.Label(frame, text="Пароль", bg=self.theme["desktop_bg"], fg=self.theme["text"]).pack()
         entry = tk.Entry(frame, show="*")
         entry.pack(pady=6)
 
@@ -842,9 +846,9 @@ class DesktopApp(tk.Tk):
             if self.users["users"].get(user, {}).get("password") == entry.get():
                 lock.destroy()
             else:
-                messagebox.showerror("Butterfly OS", "Invalid password.")
+                messagebox.showerror("Butterfly OS", "Неверный пароль.")
 
-        RoundedButton(frame, "Unlock", unlock, self.theme, width=140).pack(pady=8)
+        RoundedButton(frame, "Разблокировать", unlock, self.theme, width=180).pack(pady=8)
 
 
 def seed_store():
@@ -852,15 +856,15 @@ def seed_store():
     if not os.path.exists(demo_app):
         os.makedirs(demo_app, exist_ok=True)
         with open(os.path.join(demo_app, "manifest.json"), "w", encoding="utf-8") as file:
-            json.dump({"name": "Notes"}, file, indent=2)
+            json.dump({"name": "Заметки"}, file, indent=2)
         with open(os.path.join(demo_app, "main.py"), "w", encoding="utf-8") as file:
             file.write(
                 """
 import tkinter as tk
 
-tk.Label(frame, text='Butterfly Notes', font=('Segoe UI', 14, 'bold'), bg=theme['window_bg'], fg=theme['text']).pack(pady=10)
-text = tk.Text(frame)
-text.pack(fill='both', expand=True, padx=10, pady=10)
+            tk.Label(frame, text='Butterfly Заметки', font=('Segoe UI', 14, 'bold'), bg=theme['window_bg'], fg=theme['text']).pack(pady=10)
+            text = tk.Text(frame)
+            text.pack(fill='both', expand=True, padx=10, pady=10)
 """
             )
 
