@@ -124,6 +124,21 @@ class DesktopApp(tk.Tk):
             "Погода": {"app": "weather"},
             "Документы": {"app": "documents"},
             "Paint": {"app": "paint"},
+            "Браузер": {"app": "browser"},
+            "Терминал": {"app": "terminal"},
+            "Заметки": {"app": "notes"},
+            "Почта": {"app": "mail"},
+            "Карты": {"app": "maps"},
+            "Музыка": {"app": "music"},
+            "Видео": {"app": "video"},
+            "Часы": {"app": "clock"},
+            "Камера": {"app": "camera"},
+            "Диктофон": {"app": "recorder"},
+            "Задачи": {"app": "tasks"},
+            "Контакты": {"app": "contacts"},
+            "Чат": {"app": "chat"},
+            "Диспетчер задач": {"app": "task_manager"},
+            "Снимок экрана": {"app": "screenshot"},
         }
         for app in self.get_installed_apps():
             self.icons[app] = {"app": app}
@@ -291,6 +306,96 @@ class DesktopApp(tk.Tk):
             return
         if app_name == "paint":
             self._open_window("Paint", lambda: PaintWindow(self, self.theme))
+            return
+        if app_name == "browser":
+            self._open_window(
+                "Браузер",
+                lambda: GenericAppWindow(self, self.theme, "Браузер", "Веб-обозреватель Butterfly OS."),
+            )
+            return
+        if app_name == "terminal":
+            self._open_window(
+                "Терминал",
+                lambda: GenericAppWindow(self, self.theme, "Терминал", "Командная строка и утилиты."),
+            )
+            return
+        if app_name == "notes":
+            self._open_window(
+                "Заметки",
+                lambda: GenericAppWindow(self, self.theme, "Заметки", "Быстрые заметки и списки."),
+            )
+            return
+        if app_name == "mail":
+            self._open_window(
+                "Почта",
+                lambda: GenericAppWindow(self, self.theme, "Почта", "Просмотр и отправка писем."),
+            )
+            return
+        if app_name == "maps":
+            self._open_window(
+                "Карты",
+                lambda: GenericAppWindow(self, self.theme, "Карты", "Навигация и локации."),
+            )
+            return
+        if app_name == "music":
+            self._open_window(
+                "Музыка",
+                lambda: GenericAppWindow(self, self.theme, "Музыка", "Музыкальная библиотека."),
+            )
+            return
+        if app_name == "video":
+            self._open_window(
+                "Видео",
+                lambda: GenericAppWindow(self, self.theme, "Видео", "Коллекция видео и клипов."),
+            )
+            return
+        if app_name == "clock":
+            self._open_window(
+                "Часы",
+                lambda: GenericAppWindow(self, self.theme, "Часы", "Таймеры, будильники и секундомер."),
+            )
+            return
+        if app_name == "camera":
+            self._open_window(
+                "Камера",
+                lambda: GenericAppWindow(self, self.theme, "Камера", "Съёмка фото и видео."),
+            )
+            return
+        if app_name == "recorder":
+            self._open_window(
+                "Диктофон",
+                lambda: GenericAppWindow(self, self.theme, "Диктофон", "Запись голоса и заметок."),
+            )
+            return
+        if app_name == "tasks":
+            self._open_window(
+                "Задачи",
+                lambda: GenericAppWindow(self, self.theme, "Задачи", "Управление списком задач."),
+            )
+            return
+        if app_name == "contacts":
+            self._open_window(
+                "Контакты",
+                lambda: GenericAppWindow(self, self.theme, "Контакты", "Ваши контакты и группы."),
+            )
+            return
+        if app_name == "chat":
+            self._open_window(
+                "Чат",
+                lambda: GenericAppWindow(self, self.theme, "Чат", "Сообщения и переписки."),
+            )
+            return
+        if app_name == "task_manager":
+            self._open_window(
+                "Диспетчер задач",
+                lambda: GenericAppWindow(self, self.theme, "Диспетчер задач", "Мониторинг приложений."),
+            )
+            return
+        if app_name == "screenshot":
+            self._open_window(
+                "Снимок экрана",
+                lambda: GenericAppWindow(self, self.theme, "Снимок экрана", "Создание снимков экрана."),
+            )
             return
         if app_name.endswith(".butterfly"):
             self._open_window(app_name, lambda: self.run_butterfly_app(app_name))

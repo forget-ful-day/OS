@@ -76,6 +76,21 @@ ICON_STYLES = {
     "Погода": {"color": "#0d6efd", "symbol": "☀️"},
     "Документы": {"color": "#fd7e14", "symbol": "📄"},
     "Paint": {"color": "#ff4d6d", "symbol": "🎨"},
+    "Браузер": {"color": "#2b59ff", "symbol": "🌐"},
+    "Терминал": {"color": "#212529", "symbol": "⌨️"},
+    "Заметки": {"color": "#ffca3a", "symbol": "📝"},
+    "Почта": {"color": "#ff8c42", "symbol": "✉️"},
+    "Карты": {"color": "#3cb371", "symbol": "🗺️"},
+    "Музыка": {"color": "#6f42c1", "symbol": "🎧"},
+    "Видео": {"color": "#ff4d6d", "symbol": "🎬"},
+    "Часы": {"color": "#198754", "symbol": "⏰"},
+    "Камера": {"color": "#20c997", "symbol": "📷"},
+    "Диктофон": {"color": "#0dcaf0", "symbol": "🎙️"},
+    "Задачи": {"color": "#5c7cfa", "symbol": "✅"},
+    "Контакты": {"color": "#6c757d", "symbol": "👥"},
+    "Чат": {"color": "#0d6efd", "symbol": "💬"},
+    "Диспетчер задач": {"color": "#adb5bd", "symbol": "📊"},
+    "Снимок экрана": {"color": "#ff7b2f", "symbol": "📸"},
 }
 
 FEATURE_TOGGLES = [
