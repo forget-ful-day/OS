@@ -22,7 +22,15 @@ python main.py
 
 Пользователь по умолчанию: `admin` / `admin`.
 
-## Структура данных
+## Структура проекта
+- `main.py` — точка входа.
+- `butterfly_os/config.py` — пути, темы и настройки.
+- `butterfly_os/ui_components.py` — UI‑компоненты (скруглённые кнопки).
+- `butterfly_os/windows.py` — окна и диалоги.
+- `butterfly_os/app.py` — логика рабочего стола.
+- `butterfly_os/seed.py` — начальные приложения магазина.
+
+## Данные
 - `butterfly_fs/` – файловая система прототипа (для проводника).
 - `apps_installed/` – установленные `.butterfly` приложения.
 - `store/` – доступные `.butterfly` пакеты для магазина.
