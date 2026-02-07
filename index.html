@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Музыка → Код для Arduino (пищалка)</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <div class="hero__content">
+        <p class="hero__eyebrow">Онлайн‑конвертер музыки для Arduino</p>
+        <h1>Превратите музыку в код для платы с пищалкой</h1>
+        <p>
+          Загрузите аудио, автоматически получите скетч Arduino для пьезо‑пищалки и
+          отправьте его на плату прямо из браузера.
+        </p>
+        <div class="hero__actions">
+          <button id="btn-generate" class="btn btn--primary">Сгенерировать код</button>
+          <button id="btn-download" class="btn" disabled>Скачать .ino</button>
+          <button id="btn-upload" class="btn btn--ghost" disabled>
+            Загрузить на плату
+          </button>
+        </div>
+        <p class="hero__note">
+          Загрузка на плату работает через Web Serial и требует Chrome/Edge. Для прошивки
+          может понадобиться Arduino IDE или CLI.
+        </p>
+      </div>
+      <div class="hero__card">
+        <div class="upload">
+          <h2>1. Загрузите музыку</h2>
+          <input id="audio-file" type="file" accept="audio/*" />
+          <div class="upload__meta">
+            <span id="audio-name">Файл не выбран</span>
+            <span id="audio-duration">Длительность: —</span>
+          </div>
+        </div>
+        <div class="settings">
+          <h2>2. Настройки конвертации</h2>
+          <label>
+            Частота дискретизации нот (мс)
+            <input id="step-ms" type="number" min="50" max="500" value="120" />
+          </label>
+          <label>
+            Максимальная частота (Гц)
+            <input id="max-freq" type="number" min="2000" max="8000" value="4000" />
+          </label>
+          <label>
+            Пин пищалки
+            <input id="buzzer-pin" type="number" min="2" max="13" value="9" />
+          </label>
+          <label>
+            Темп (BPM)
+            <input id="tempo" type="number" min="60" max="240" value="120" />
+          </label>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+      <section class="panel">
+        <h2>3. Скетч Arduino</h2>
+        <p>
+          Ниже появится готовый код. Вы можете скопировать его вручную или отправить на
+          плату через Web Serial.
+        </p>
+        <textarea id="arduino-code" rows="18" placeholder="Здесь будет сгенерированный код..."></textarea>
+        <div class="panel__actions">
+          <button id="btn-copy" class="btn" disabled>Скопировать</button>
+          <button id="btn-clear" class="btn btn--ghost">Очистить</button>
+        </div>
+        <div id="status" class="status">Ожидаю аудио файл.</div>
+      </section>
+
+      <section class="panel">
+        <h2>Как это работает</h2>
+        <ol>
+          <li>Алгоритм берёт огибающую музыки и превращает её в последовательность частот.</li>
+          <li>Генерируется массив частот и длительностей для функции <code>tone()</code>.</li>
+          <li>Скетч воспроизводит мелодию на пьезо‑пищалке.</li>
+        </ol>
+        <div class="tips">
+          <h3>Советы</h3>
+          <ul>
+            <li>Лучше всего подходят моно‑треки без сложной полифонии.</li>
+            <li>Уменьшите шаг по времени, если нужно больше деталей (но код станет длиннее).</li>
+            <li>Перед прошивкой убедитесь, что плата находится в правильном режиме загрузки.</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p>Сделано для обучения и прототипирования. Реальная прошивка может требовать Arduino IDE.</p>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>
