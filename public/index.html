@@ -3,212 +3,124 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>СоцСфера — социальная сеть нового поколения</title>
+    <title>Берендей — социальная сеть</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <canvas id="snowfall" aria-hidden="true"></canvas>
-    <header class="hero">
-      <nav class="nav">
-        <div class="logo">СоцСфера</div>
-        <ul class="nav-links">
-          <li><a href="#features">Возможности</a></li>
-          <li><a href="#app">Интерфейс</a></li>
-          <li><a href="#community">Сообщества</a></li>
-          <li><a href="#cta">Присоединиться</a></li>
-        </ul>
-        <button class="btn ghost">Войти</button>
-      </nav>
-      <div class="hero-content">
-        <div>
-          <h1>СоцСфера — готовая соцсеть в стиле Instagram для вашего бренда.</h1>
-          <p>
-            Публикуйте посты, истории и ролики, общайтесь в директе, ведите
-            прямые эфиры и находите друзей по интересам. Всё в одном приложении.
-          </p>
-          <div class="hero-actions">
-            <button class="btn primary">Создать аккаунт</button>
-            <button class="btn secondary">Посмотреть демо</button>
-          </div>
-          <div class="hero-stats">
-            <div>
-              <strong>2,3 млн</strong>
-              <span>активных пользователей</span>
-            </div>
-            <div>
-              <strong>15 тыс.</strong>
-              <span>сообществ и чатов</span>
-            </div>
-            <div>
-              <strong>98%</strong>
-              <span>лояльность аудитории</span>
-            </div>
-          </div>
-        </div>
-        <div class="hero-card">
-          <div class="status">
-            <span class="badge live">Live</span>
-            <p>Сегодня в эфире: интервью с блогерами “Городские истории”.</p>
-          </div>
-          <div class="profile">
-            <div class="avatar"></div>
-            <div>
-              <h3>Алина К.</h3>
-              <p>Авторка канала “Городские прогулки”</p>
-            </div>
-          </div>
-          <div class="card-footer">
-            <span>Новые подписчики: 128</span>
-            <button class="btn small">Подписаться</button>
-          </div>
-        </div>
+    <header class="app-topbar">
+      <div class="logo">Берендей</div>
+      <div class="search">
+        <input type="search" placeholder="Поиск людей, постов и сообществ" />
+      </div>
+      <div class="topbar-actions">
+        <button class="btn ghost">Создать</button>
+        <button class="btn primary">Профиль</button>
       </div>
     </header>
 
-    <main>
-      <section id="features" class="section">
-        <h2>Возможности</h2>
-        <div class="grid">
-          <article>
-            <h3>Умная лента</h3>
-            <p>Рекомендации на основе подписок, хэштегов и активности друзей.</p>
-          </article>
-          <article>
-            <h3>Приватность</h3>
-            <p>Гибкие настройки видимости постов, историй и списков друзей.</p>
-          </article>
-          <article>
-            <h3>Истории и Reels</h3>
-            <p>Быстрые форматы контента с эффектами, музыкой и интерактивом.</p>
-          </article>
-          <article>
-            <h3>Директ и звонки</h3>
-            <p>Личные сообщения, групповые чаты и видеовстречи без переключений.</p>
-          </article>
+    <main class="app-shell">
+      <aside class="sidebar">
+        <h3>Навигация</h3>
+        <ul>
+          <li>Лента</li>
+          <li>Истории</li>
+          <li>Reels</li>
+          <li>Директ</li>
+          <li>Сообщества</li>
+          <li>События</li>
+          <li>Настройки</li>
+        </ul>
+        <div class="sidebar-card">
+          <p><strong>Тема дня</strong></p>
+          <p>Поделитесь местом, которое делает вас счастливее.</p>
         </div>
+      </aside>
+
+      <section class="feed" aria-label="Лента">
+        <div class="stories">
+          <div class="story"><span>Вы</span></div>
+          <div class="story"><span>Мария</span></div>
+          <div class="story"><span>Дмитрий</span></div>
+          <div class="story"><span>Юлия</span></div>
+          <div class="story"><span>Кирилл</span></div>
+        </div>
+
+        <form class="composer" id="composer">
+          <div class="composer-header">
+            <div class="avatar small"></div>
+            <div>
+              <strong>berendei_official</strong>
+              <span>Создайте новый пост и поделитесь новостью</span>
+            </div>
+          </div>
+          <textarea
+            id="post-content"
+            rows="3"
+            placeholder="Что нового? Расскажите своей аудитории..."
+            required
+          ></textarea>
+          <div class="composer-footer">
+            <input
+              type="text"
+              id="post-location"
+              placeholder="Локация (например, Москва)"
+            />
+            <button class="btn primary" type="submit">Опубликовать</button>
+          </div>
+          <p class="composer-hint">
+            Посты сохраняются в вашем браузере и доступны сразу после публикации.
+          </p>
+        </form>
+
+        <div class="feed-list" id="feed-list" aria-live="polite"></div>
       </section>
 
-      <section id="app" class="section alt">
-        <h2>Интерфейс, как в Instagram</h2>
-        <div class="app-layout">
-          <aside class="sidebar">
-            <h3>Навигация</h3>
-            <ul>
-              <li>Лента</li>
-              <li>Истории</li>
-              <li>Reels</li>
-              <li>Директ</li>
-              <li>Поиск</li>
-              <li>Профиль</li>
-            </ul>
-            <div class="sidebar-card">
-              <p><strong>Советы дня</strong></p>
-              <p>Опубликуйте 3 истории, чтобы увеличить охват на 18%.</p>
-            </div>
-          </aside>
-          <div class="feed">
-            <div class="stories">
-              <div class="story"><span>Вы</span></div>
-              <div class="story"><span>Мария</span></div>
-              <div class="story"><span>Дмитрий</span></div>
-              <div class="story"><span>Юлия</span></div>
-              <div class="story"><span>Кирилл</span></div>
-            </div>
-            <form class="composer" id="composer">
-              <div class="composer-header">
-                <div class="avatar small"></div>
-                <div>
-                  <strong>sozsfera_official</strong>
-                  <span>Создайте новый пост и поделитесь новостью</span>
-                </div>
-              </div>
-              <textarea
-                id="post-content"
-                rows="3"
-                placeholder="Что нового? Расскажите своей аудитории..."
-                required
-              ></textarea>
-              <div class="composer-footer">
-                <input
-                  type="text"
-                  id="post-location"
-                  placeholder="Локация (например, Москва)"
-                />
-                <button class="btn primary" type="submit">Опубликовать</button>
-              </div>
-              <p class="composer-hint">
-                Посты сохраняются в вашем браузере и доступны сразу после публикации.
-              </p>
-            </form>
-            <div class="feed-list" id="feed-list" aria-live="polite"></div>
-          </div>
-          <aside class="profile-card">
-            <h3>Ваш профиль</h3>
-            <div class="profile-summary">
-              <div class="avatar"></div>
-              <div>
-                <strong>sozsfera_official</strong>
-                <span>124 публикации · 8,7k подписчиков</span>
-              </div>
-            </div>
-            <div class="profile-stats">
-              <div>
-                <strong>32</strong>
-                <span>историй</span>
-              </div>
-              <div>
-                <strong>14</strong>
-                <span>Reels</span>
-              </div>
-              <div>
-                <strong>6</strong>
-                <span>эфиров</span>
-              </div>
-            </div>
-            <button class="btn small">Редактировать профиль</button>
-          </aside>
-        </div>
-      </section>
-
-      <section id="community" class="section">
-        <h2>Сообщества, которые вдохновляют</h2>
-        <div class="community">
-          <div class="community-card">
-            <h3>Креативный офис</h3>
-            <p>Идеи для команд и удалённой работы.</p>
-            <button class="btn small">Вступить</button>
-          </div>
-          <div class="community-card">
-            <h3>Зелёный город</h3>
-            <p>Экологические инициативы, посадки деревьев и обмен вещами.</p>
-            <button class="btn small">Вступить</button>
-          </div>
-          <div class="community-card">
-            <h3>Гастро-маршруты</h3>
-            <p>Лучшие места, рецепты и гастрономические события.</p>
-            <button class="btn small">Вступить</button>
+      <aside class="profile-card">
+        <h3>Ваш профиль</h3>
+        <div class="profile-summary">
+          <div class="avatar"></div>
+          <div>
+            <strong>berendei_official</strong>
+            <span>124 публикации · 8,7k подписчиков</span>
           </div>
         </div>
-      </section>
+        <div class="profile-stats">
+          <div>
+            <strong>32</strong>
+            <span>историй</span>
+          </div>
+          <div>
+            <strong>14</strong>
+            <span>Reels</span>
+          </div>
+          <div>
+            <strong>6</strong>
+            <span>эфиров</span>
+          </div>
+        </div>
+        <div class="profile-actions">
+          <button class="btn small">Редактировать профиль</button>
+          <button class="btn secondary small">Статистика</button>
+        </div>
 
-      <section id="cta" class="section cta">
-        <h2>Готовы начать?</h2>
-        <p>
-          Зарегистрируйтесь за 30 секунд и получите доступ к событиям, друзьям и
-          персональной ленте.
-        </p>
-        <button class="btn primary">Присоединиться к СоцСфере</button>
-      </section>
+        <div class="trends">
+          <h4>Популярно сейчас</h4>
+          <ul>
+            <li>#зимнийлес</li>
+            <li>#утренниепрогулки</li>
+            <li>#домашнийуют</li>
+          </ul>
+        </div>
+        <div class="suggestions">
+          <h4>Рекомендуемые люди</h4>
+          <div class="suggestion">Анна Р. · 2 общих друга</div>
+          <div class="suggestion">Илья М. · путешествия</div>
+          <div class="suggestion">София К. · фотограф</div>
+        </div>
+      </aside>
     </main>
 
-    <footer class="footer">
-      <p>© 2025 СоцСфера. Все права защищены.</p>
-      <div class="footer-links">
-        <a href="#">Политика конфиденциальности</a>
-        <a href="#">Поддержка</a>
-        <a href="#">Контакты</a>
-      </div>
-    </footer>
     <script src="snow.js" defer></script>
     <script src="app.js" defer></script>
   </body>

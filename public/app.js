@@ -3,29 +3,29 @@ const composer = document.getElementById('composer');
 const contentInput = document.getElementById('post-content');
 const locationInput = document.getElementById('post-location');
 
-const storageKey = 'socSpherePosts';
+const storageKey = 'berendeiPosts';
 
 const defaultPosts = [
   {
     id: 'post-1',
-    author: 'Мария С.',
-    location: 'Санкт-Петербург',
-    content: 'Запустила марафон “7 дней осознанности”. Кто со мной?',
-    preview: 'Фото: утренний кофе и план на неделю',
-    likes: 1248,
+    author: 'Анна Р.',
+    location: 'Суздаль',
+    content: 'Нашла маршрут по зимнему лесу — делюсь теплом и вдохновением.',
+    preview: 'Фото: снежная тропа и горячий чай',
+    likes: 842,
     liked: false,
-    comments: ['Супер идея!', 'Я с вами!'],
+    comments: ['Какая красота!', 'Хочу туда же.'],
     time: '2 часа назад',
   },
   {
     id: 'post-2',
-    author: 'Дмитрий Л.',
+    author: 'Илья М.',
     location: 'Казань',
-    content: 'Новый Reels уже в профиле! Делюсь секретами лайв-саунда.',
-    preview: 'Видео: вечерний джем в студии',
-    likes: 3542,
+    content: 'Собрал подборку уютных мест для встреч с друзьями.',
+    preview: 'Подборка: лучшие места этой недели',
+    likes: 1520,
     liked: false,
-    comments: ['🔥', 'Где можно посмотреть?'],
+    comments: ['Отличные советы!', 'Добавлю в планы.'],
     time: 'Вчера',
   },
 ];
@@ -97,7 +97,7 @@ const addPost = (event) => {
   const location = locationInput.value.trim();
   const newPost = {
     id: `post-${Date.now()}`,
-    author: 'sozsfera_official',
+    author: 'berendei_official',
     location: location || 'Онлайн',
     content,
     preview: 'Новый пост от вашего аккаунта',
