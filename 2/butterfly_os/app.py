@@ -9,6 +9,7 @@ from .config import (
     DEFAULT_CONFIG,
     DEFAULT_USERS,
     FS_DIR,
+    FEATURE_TOGGLES,
     ICON_STYLES,
     THEMES,
     USERS_PATH,
@@ -20,10 +21,15 @@ from .ui_components import RoundedButton
 from .windows import (
     AppInstaller,
     BootScreen,
+    CalculatorWindow,
     ControlCenter,
+    DocumentsWindow,
     FileExplorer,
+    GalleryWindow,
     GenericAppWindow,
     LoginScreen,
+    MediaPlayerWindow,
+    PaintWindow,
     SettingsWindow,
     Window,
 )
@@ -35,6 +41,11 @@ class DesktopApp(tk.Tk):
         ensure_directories()
         self.config_data = load_json(CONFIG_PATH, DEFAULT_CONFIG)
         self.users = load_json(USERS_PATH, DEFAULT_USERS)
+        if "toggles" not in self.config_data:
+            self.config_data["toggles"] = {}
+        for name in FEATURE_TOGGLES:
+            self.config_data["toggles"].setdefault(name, False)
+        save_json(CONFIG_PATH, self.config_data)
         self.theme = THEMES[self.config_data.get("theme", "light")]
         self.title("Butterfly OS 13")
         self.attributes("-fullscreen", True)
@@ -91,6 +102,7 @@ class DesktopApp(tk.Tk):
             ("Настройки", lambda: self.launch_app("settings")),
             ("Магазин приложений", lambda: self.launch_app("store")),
             ("Центр управления", lambda: self.launch_app("control")),
+            ("Paint", lambda: self.launch_app("paint")),
             ("Сменить пользователя", self.show_login),
             ("Заблокировать", self.lock_screen),
             ("Выключить", self.quit),
@@ -111,6 +123,7 @@ class DesktopApp(tk.Tk):
             "Калькулятор": {"app": "calculator"},
             "Погода": {"app": "weather"},
             "Документы": {"app": "documents"},
+            "Paint": {"app": "paint"},
         }
         for app in self.get_installed_apps():
             self.icons[app] = {"app": app}
@@ -244,7 +257,7 @@ class DesktopApp(tk.Tk):
             self._open_window("Магазин приложений", lambda: AppInstaller(self, self.theme, self.refresh_apps))
             return
         if app_name == "control":
-            self._open_window("Центр управления", lambda: ControlCenter(self, self.theme, self.config_data))
+            self._open_window("Центр управления", lambda: ControlCenter(self, self.theme, self.config_data, self.persist_settings))
             return
         if app_name == "games":
             self._open_window(
@@ -253,16 +266,10 @@ class DesktopApp(tk.Tk):
             )
             return
         if app_name == "media":
-            self._open_window(
-                "Медиаплеер",
-                lambda: GenericAppWindow(self, self.theme, "Медиаплеер", "Воспроизведение музыки и видео."),
-            )
+            self._open_window("Медиаплеер", lambda: MediaPlayerWindow(self, self.theme))
             return
         if app_name == "gallery":
-            self._open_window(
-                "Галерея",
-                lambda: GenericAppWindow(self, self.theme, "Галерея", "Просмотр фото из Butterfly FS."),
-            )
+            self._open_window("Галерея", lambda: GalleryWindow(self, self.theme))
             return
         if app_name == "calendar":
             self._open_window(
@@ -271,10 +278,7 @@ class DesktopApp(tk.Tk):
             )
             return
         if app_name == "calculator":
-            self._open_window(
-                "Калькулятор",
-                lambda: GenericAppWindow(self, self.theme, "Калькулятор", "Быстрые вычисления."),
-            )
+            self._open_window("Калькулятор", lambda: CalculatorWindow(self, self.theme))
             return
         if app_name == "weather":
             self._open_window(
@@ -283,10 +287,10 @@ class DesktopApp(tk.Tk):
             )
             return
         if app_name == "documents":
-            self._open_window(
-                "Документы",
-                lambda: GenericAppWindow(self, self.theme, "Документы", "Управление файлами и документами."),
-            )
+            self._open_window("Документы", lambda: DocumentsWindow(self, self.theme))
+            return
+        if app_name == "paint":
+            self._open_window("Paint", lambda: PaintWindow(self, self.theme))
             return
         if app_name.endswith(".butterfly"):
             self._open_window(app_name, lambda: self.run_butterfly_app(app_name))
@@ -335,9 +339,12 @@ class DesktopApp(tk.Tk):
     def refresh_apps(self):
         self._build_icons()
 
+    def persist_settings(self):
+        save_json(CONFIG_PATH, self.config_data)
+
     def reload_theme(self):
         self.theme = THEMES[self.config_data.get("theme", "light")]
-        save_json(CONFIG_PATH, self.config_data)
+        self.persist_settings()
         self.configure(bg=self.theme["desktop_bg"])
         self.desktop.configure(bg=self.theme["desktop_bg"])
         self.taskbar.configure(bg=self.theme["taskbar_bg"])

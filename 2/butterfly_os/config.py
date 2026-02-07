@@ -9,12 +9,6 @@ STORE_DIR = os.path.join(BASE_DIR, "store")
 CONFIG_PATH = os.path.join(DATA_DIR, "settings.json")
 USERS_PATH = os.path.join(DATA_DIR, "users.json")
 
-DEFAULT_CONFIG = {
-    "theme": "light",
-    "icon_positions": {},
-    "last_user": "admin",
-}
-
 DEFAULT_USERS = {
     "users": {
         "admin": {
@@ -45,12 +39,28 @@ THEMES = {
         "text": "#f7e8ff",
         "accent": "#ff4dff",
     },
+    "sunset": {
+        "desktop_bg": "#2c0b1c",
+        "taskbar_bg": "#3a0f24",
+        "window_bg": "#4a1730",
+        "text": "#ffe6e6",
+        "accent": "#ff6f61",
+    },
+    "ocean": {
+        "desktop_bg": "#001f2f",
+        "taskbar_bg": "#00334d",
+        "window_bg": "#0a3d62",
+        "text": "#e0f7ff",
+        "accent": "#00c2ff",
+    },
 }
 
 THEME_LABELS = {
     "light": "Светлая",
     "dark": "Тёмная",
     "neon": "Butterfly Neon",
+    "sunset": "Butterfly Sunset",
+    "ocean": "Butterfly Ocean",
 }
 
 ICON_STYLES = {
@@ -65,6 +75,7 @@ ICON_STYLES = {
     "Калькулятор": {"color": "#198754", "symbol": "🧮"},
     "Погода": {"color": "#0d6efd", "symbol": "☀️"},
     "Документы": {"color": "#fd7e14", "symbol": "📄"},
+    "Paint": {"color": "#ff4d6d", "symbol": "🎨"},
 }
 
 FEATURE_TOGGLES = [
@@ -94,6 +105,13 @@ FEATURE_TOGGLES = [
     "Поиск устройства",
     "Системная телеметрия",
 ]
+
+DEFAULT_CONFIG = {
+    "theme": "light",
+    "icon_positions": {},
+    "last_user": "admin",
+    "toggles": {name: False for name in FEATURE_TOGGLES},
+}
 
 
 def ensure_directories():

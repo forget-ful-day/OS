@@ -7,6 +7,7 @@ from tkinter import filedialog, messagebox, ttk
 from .config import (
     APPS_DIR,
     FEATURE_TOGGLES,
+    FS_DIR,
     STORE_DIR,
     THEMES,
     THEME_LABELS,
@@ -105,7 +106,7 @@ class FileExplorer(Window):
         self.listbox.bind("<Double-Button-1>", self.open_item)
         buttons = tk.Frame(body, bg=theme["window_bg"])
         buttons.pack(side="right", fill="y", padx=10, pady=10)
-        RoundedButton(buttons, "Загрузить", self.upload_file, theme, width=140).pack(pady=4)
+        RoundedButton(buttons, "Импорт файлов", self.upload_file, theme, width=160).pack(pady=4)
         RoundedButton(buttons, "Новая папка", self.create_folder, theme, width=140).pack(pady=4)
         RoundedButton(buttons, "Открыть", self.open_item, theme, width=140).pack(pady=4)
         self.refresh()
@@ -133,10 +134,11 @@ class FileExplorer(Window):
         messagebox.showinfo("Butterfly OS", f"Файл: {name}\nПуть: {full_path}")
 
     def upload_file(self):
-        file_path = filedialog.askopenfilename()
-        if not file_path:
+        file_paths = filedialog.askopenfilenames()
+        if not file_paths:
             return
-        shutil.copy(file_path, self.path)
+        for file_path in file_paths:
+            shutil.copy(file_path, self.path)
         self.refresh()
 
     def create_folder(self):
@@ -188,6 +190,9 @@ class AppInstaller(Window):
             if entry.endswith(".butterfly"):
                 self.listbox.insert(tk.END, entry)
         RoundedButton(body, "Установить", self.install_selected, theme, width=120).pack(side="right", padx=10)
+        RoundedButton(body, "Установить из файла", self.install_from_file, theme, width=180).pack(
+            side="right", padx=10
+        )
 
     def install_selected(self):
         selection = self.listbox.curselection()
@@ -200,6 +205,22 @@ class AppInstaller(Window):
             messagebox.showinfo("Butterfly OS", "Уже установлено.")
             return
         shutil.copytree(src, dst)
+        self.on_install()
+        messagebox.showinfo("Butterfly OS", f"Установлено: {name}.")
+
+    def install_from_file(self):
+        folder = filedialog.askdirectory()
+        if not folder:
+            return
+        if not folder.endswith(".butterfly"):
+            messagebox.showerror("Butterfly OS", "Нужна папка с расширением .butterfly.")
+            return
+        name = os.path.basename(folder)
+        dst = os.path.join(APPS_DIR, name)
+        if os.path.exists(dst):
+            messagebox.showinfo("Butterfly OS", "Уже установлено.")
+            return
+        shutil.copytree(folder, dst)
         self.on_install()
         messagebox.showinfo("Butterfly OS", f"Установлено: {name}.")
 
@@ -253,8 +274,10 @@ class SettingsWindow(Window):
 
 
 class ControlCenter(Window):
-    def __init__(self, master, theme, config):
+    def __init__(self, master, theme, config, on_update):
         super().__init__(master, "Центр управления", theme)
+        self.config = config
+        self.on_update = on_update
         body = tk.Frame(self, bg=theme["window_bg"])
         body.pack(fill="both", expand=True, padx=10, pady=10)
         tk.Label(
@@ -268,17 +291,21 @@ class ControlCenter(Window):
         grid.pack(fill="both", expand=True)
         self.toggle_vars = {}
         for idx, name in enumerate(FEATURE_TOGGLES):
-            var = tk.BooleanVar(value=False)
+            var = tk.BooleanVar(value=self.config.get("toggles", {}).get(name, False))
             self.toggle_vars[name] = var
             row = idx // 3
             col = idx % 3
             card = tk.Frame(grid, bg=theme["taskbar_bg"], highlightbackground=theme["accent"], highlightthickness=1)
             card.grid(row=row, column=col, padx=6, pady=6, sticky="nsew")
             tk.Label(card, text=name, bg=theme["taskbar_bg"], fg=theme["text"]).pack(padx=8, pady=(8, 4))
-            toggle = ttk.Checkbutton(card, variable=var)
+            toggle = ttk.Checkbutton(card, variable=var, command=self.persist_toggles)
             toggle.pack(pady=(0, 8))
         for col in range(3):
             grid.grid_columnconfigure(col, weight=1)
+
+    def persist_toggles(self):
+        self.config["toggles"] = {name: var.get() for name, var in self.toggle_vars.items()}
+        self.on_update()
 
 
 class GenericAppWindow(Window):
@@ -301,6 +328,174 @@ class GenericAppWindow(Window):
             justify="left",
             wraplength=520,
         ).pack(anchor="w", pady=10)
+
+
+class CalculatorWindow(Window):
+    def __init__(self, master, theme):
+        super().__init__(master, "Калькулятор", theme)
+        body = tk.Frame(self, bg=theme["window_bg"])
+        body.pack(fill="both", expand=True, padx=20, pady=20)
+        self.display = tk.Entry(body, font=("Segoe UI", 16))
+        self.display.pack(fill="x", pady=(0, 10))
+        buttons = [
+            "7",
+            "8",
+            "9",
+            "/",
+            "4",
+            "5",
+            "6",
+            "*",
+            "1",
+            "2",
+            "3",
+            "-",
+            "0",
+            ".",
+            "=",
+            "+",
+        ]
+        grid = tk.Frame(body, bg=theme["window_bg"])
+        grid.pack()
+        for idx, label in enumerate(buttons):
+            btn = RoundedButton(grid, label, lambda l=label: self.on_press(l), theme, width=60, height=40)
+            btn.grid(row=idx // 4, column=idx % 4, padx=6, pady=6)
+        RoundedButton(body, "Очистить", self.clear, theme, width=120).pack(pady=(12, 0))
+
+    def on_press(self, label):
+        if label == "=":
+            try:
+                result = eval(self.display.get(), {})
+                self.display.delete(0, tk.END)
+                self.display.insert(0, str(result))
+            except Exception:
+                self.display.delete(0, tk.END)
+                self.display.insert(0, "Ошибка")
+            return
+        self.display.insert(tk.END, label)
+
+    def clear(self):
+        self.display.delete(0, tk.END)
+
+
+class PaintWindow(Window):
+    def __init__(self, master, theme):
+        super().__init__(master, "Paint", theme)
+        self.theme = theme
+        body = tk.Frame(self, bg=theme["window_bg"])
+        body.pack(fill="both", expand=True)
+        toolbar = tk.Frame(body, bg=theme["taskbar_bg"])
+        toolbar.pack(fill="x")
+        self.color = "#000000"
+        colors = ["#000000", "#ff0000", "#00a300", "#0067c0", "#ffb900", "#ffffff"]
+        for color in colors:
+            RoundedButton(toolbar, " ", lambda c=color: self.set_color(c), theme, width=32, height=32).pack(
+                side="left", padx=4, pady=4
+            )
+        RoundedButton(toolbar, "Сохранить", self.save_canvas, theme, width=120, height=32).pack(
+            side="right", padx=6, pady=4
+        )
+        RoundedButton(toolbar, "Очистить", self.clear_canvas, theme, width=120, height=32).pack(
+            side="right", padx=6, pady=4
+        )
+        self.canvas = tk.Canvas(body, bg="white")
+        self.canvas.pack(fill="both", expand=True)
+        self.canvas.bind("<B1-Motion>", self.draw)
+
+    def set_color(self, color):
+        self.color = color
+
+    def draw(self, event):
+        x, y = event.x, event.y
+        self.canvas.create_oval(x - 3, y - 3, x + 3, y + 3, fill=self.color, outline=self.color)
+
+    def clear_canvas(self):
+        self.canvas.delete("all")
+
+    def save_canvas(self):
+        file_path = filedialog.asksaveasfilename(defaultextension=".ps", filetypes=[("PostScript", "*.ps")])
+        if not file_path:
+            return
+        self.canvas.postscript(file=file_path)
+        messagebox.showinfo("Butterfly OS", "Рисунок сохранён.")
+
+
+class GalleryWindow(Window):
+    def __init__(self, master, theme):
+        super().__init__(master, "Галерея", theme)
+        self.path = FS_DIR
+        body = tk.Frame(self, bg=theme["window_bg"])
+        body.pack(fill="both", expand=True)
+        self.listbox = tk.Listbox(body)
+        self.listbox.pack(side="left", fill="both", expand=True, padx=10, pady=10)
+        scrollbar = tk.Scrollbar(body, command=self.listbox.yview)
+        scrollbar.pack(side="left", fill="y")
+        self.listbox.config(yscrollcommand=scrollbar.set)
+        self.listbox.bind("<Double-Button-1>", self.open_image)
+        RoundedButton(body, "Обновить", self.refresh, theme, width=120).pack(side="right", padx=10)
+        self.refresh()
+
+    def refresh(self):
+        self.listbox.delete(0, tk.END)
+        for entry in sorted(os.listdir(self.path)):
+            if entry.lower().endswith((".png", ".gif", ".ppm", ".pgm")):
+                self.listbox.insert(tk.END, entry)
+
+    def open_image(self, event=None):
+        selection = self.listbox.curselection()
+        if not selection:
+            return
+        name = self.listbox.get(selection[0])
+        full_path = os.path.join(self.path, name)
+        ImageViewer(self.master, self.theme, full_path)
+
+
+class MediaPlayerWindow(Window):
+    def __init__(self, master, theme):
+        super().__init__(master, "Медиаплеер", theme)
+        body = tk.Frame(self, bg=theme["window_bg"])
+        body.pack(fill="both", expand=True, padx=20, pady=20)
+        tk.Label(
+            body,
+            text="Откройте аудио или видео файл для воспроизведения внешним плеером.",
+            bg=theme["window_bg"],
+            fg=theme["text"],
+            wraplength=520,
+            justify="left",
+        ).pack(anchor="w", pady=(0, 12))
+        RoundedButton(body, "Выбрать файл", self.open_external, theme, width=160).pack(pady=6)
+        self.path_label = tk.Label(body, text="", bg=theme["window_bg"], fg=theme["text"])
+        self.path_label.pack(anchor="w", pady=6)
+
+    def open_external(self):
+        file_path = filedialog.askopenfilename()
+        if not file_path:
+            return
+        self.path_label.config(text=f"Файл: {file_path}")
+        opener = getattr(os, "startfile", None)
+        if opener is None:
+            messagebox.showinfo("Butterfly OS", "Открытие внешних файлов доступно только в Windows.")
+            return
+        try:
+            opener(file_path)
+        except OSError:
+            messagebox.showinfo("Butterfly OS", "Не удалось открыть файл.")
+
+
+class DocumentsWindow(Window):
+    def __init__(self, master, theme):
+        super().__init__(master, "Документы", theme)
+        body = tk.Frame(self, bg=theme["window_bg"])
+        body.pack(fill="both", expand=True, padx=20, pady=20)
+        tk.Label(
+            body,
+            text="Быстрый доступ к файловой системе Butterfly OS.",
+            bg=theme["window_bg"],
+            fg=theme["text"],
+        ).pack(anchor="w", pady=(0, 10))
+        RoundedButton(body, "Открыть проводник", lambda: FileExplorer(self.master, theme, FS_DIR), theme, width=200).pack(
+            pady=6
+        )
 
 
 class LoginScreen(tk.Toplevel):
