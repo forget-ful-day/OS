@@ -209,7 +209,9 @@ class Window(tk.Toplevel):
         self.on_close = on_close
         self.configure(bg=theme["window_bg"])
         self.title(title)
-        self.geometry("760x520")
+        self.overrideredirect(True)
+        self.attributes("-fullscreen", True)
+        self.geometry(f"{self.winfo_screenwidth()}x{self.winfo_screenheight()}+0+0")
         self.protocol("WM_DELETE_WINDOW", self.close)
         self._make_title_bar(title)
 
@@ -243,6 +245,7 @@ class Window(tk.Toplevel):
             fg=self.theme["text"],
             relief="flat",
         ).pack(side="left")
+        self.bind("<Escape>", lambda event: self.close())
 
     def close(self):
         if self.on_close:
@@ -506,8 +509,9 @@ class DesktopApp(tk.Tk):
         self.users = load_json(USERS_PATH, DEFAULT_USERS)
         self.theme = THEMES[self.config_data.get("theme", "light")]
         self.title("Butterfly OS 13")
+        self.overrideredirect(True)
+        self.attributes("-fullscreen", True)
         self.geometry(f"{self.winfo_screenwidth()}x{self.winfo_screenheight()}+0+0")
-        self.state("zoomed")
         self.configure(bg=self.theme["desktop_bg"])
         self.desktop = tk.Canvas(self, bg=self.theme["desktop_bg"], highlightthickness=0)
         self.desktop.pack(fill="both", expand=True)
@@ -530,6 +534,7 @@ class DesktopApp(tk.Tk):
         self.desktop.bind("<ButtonPress-1>", self.on_icon_press)
         self.desktop.bind("<B1-Motion>", self.on_icon_drag)
         self.desktop.bind("<ButtonRelease-1>", self.on_icon_release)
+        self.desktop.bind("<Double-Button-1>", self.launch_icon)
         self.bind("<Control-l>", lambda event: self.lock_screen())
         self._build_icons()
         self.update_taskbar()
@@ -653,7 +658,6 @@ class DesktopApp(tk.Tk):
 
     def on_icon_release(self, event):
         if not self.dragging:
-            self.launch_icon(event)
             return
         name = self.dragging["name"]
         coords = self.desktop.coords(name)

@@ -13,6 +13,7 @@ This is a Tkinter-based prototype that mimics a Windows-like desktop called **Bu
 - Simple App Store that installs `.butterfly` apps.
 - Rounded buttons and colorful emoji icons.
 - Control Center includes 25 quick feature toggles.
+- Windows open in full-screen mode and the OS taskbar is hidden for immersion.
 
 ## Run
 ```bash
