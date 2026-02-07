@@ -2,6 +2,9 @@ import json
 import os
 import shutil
 import tkinter as tk
+import urllib.error
+import urllib.request
+from html.parser import HTMLParser
 from tkinter import filedialog, messagebox, ttk
 
 from .config import (
@@ -340,6 +343,80 @@ class GenericAppWindow(Window):
             justify="left",
             wraplength=520,
         ).pack(anchor="w", pady=10)
+
+
+class SimpleHTMLTextExtractor(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.parts = []
+
+    def handle_data(self, data):
+        if data.strip():
+            self.parts.append(data.strip())
+
+    def get_text(self):
+        return "\n".join(self.parts)
+
+
+class BrowserWindow(Window):
+    def __init__(self, master, theme):
+        super().__init__(master, "Браузер", theme)
+        self.theme = theme
+        body = tk.Frame(self, bg=theme["window_bg"])
+        body.pack(fill="both", expand=True)
+        bar = tk.Frame(body, bg=theme["taskbar_bg"])
+        bar.pack(fill="x")
+        self.url_entry = tk.Entry(bar)
+        self.url_entry.pack(side="left", fill="x", expand=True, padx=8, pady=6)
+        RoundedButton(bar, "Перейти", self.load_url, theme, width=120, height=30).pack(side="left", padx=6, pady=4)
+        RoundedButton(bar, "Открыть в системе", self.open_external, theme, width=180, height=30).pack(
+            side="left", padx=6, pady=4
+        )
+        self.content = tk.Text(body, wrap="word")
+        self.content.pack(fill="both", expand=True, padx=10, pady=10)
+        self.status = tk.Label(body, text="", bg=theme["window_bg"], fg=theme["text"])
+        self.status.pack(anchor="w", padx=10, pady=(0, 8))
+
+    def normalize_url(self, url):
+        url = url.strip()
+        if not url:
+            return ""
+        if not url.startswith(("http://", "https://")):
+            return f"https://{url}"
+        return url
+
+    def load_url(self):
+        url = self.normalize_url(self.url_entry.get())
+        if not url:
+            return
+        self.status.config(text=f"Загрузка: {url}")
+        try:
+            with urllib.request.urlopen(url, timeout=10) as response:
+                charset = response.headers.get_content_charset() or "utf-8"
+                html_text = response.read().decode(charset, errors="ignore")
+        except urllib.error.URLError as exc:
+            self.status.config(text="Ошибка загрузки.")
+            messagebox.showerror("Butterfly OS", f"Не удалось открыть {url}\n{exc}")
+            return
+        extractor = SimpleHTMLTextExtractor()
+        extractor.feed(html_text)
+        text = extractor.get_text()
+        self.content.delete("1.0", tk.END)
+        self.content.insert("1.0", text or "Пустая страница.")
+        self.status.config(text=f"Готово: {url}")
+
+    def open_external(self):
+        url = self.normalize_url(self.url_entry.get())
+        if not url:
+            return
+        opener = getattr(os, "startfile", None)
+        if opener is None:
+            messagebox.showinfo("Butterfly OS", "Открытие внешних ссылок доступно только в Windows.")
+            return
+        try:
+            opener(url)
+        except OSError:
+            messagebox.showinfo("Butterfly OS", "Не удалось открыть ссылку.")
 
 
 class CalculatorWindow(Window):

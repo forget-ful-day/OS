@@ -20,6 +20,7 @@ from .config import (
 from .ui_components import RoundedButton
 from .windows import (
     AppInstaller,
+    BrowserWindow,
     BootScreen,
     CalculatorWindow,
     ControlCenter,
@@ -308,10 +309,7 @@ class DesktopApp(tk.Tk):
             self._open_window("Paint", lambda: PaintWindow(self, self.theme))
             return
         if app_name == "browser":
-            self._open_window(
-                "Браузер",
-                lambda: GenericAppWindow(self, self.theme, "Браузер", "Веб-обозреватель Butterfly OS."),
-            )
+            self._open_window("Браузер", lambda: BrowserWindow(self, self.theme))
             return
         if app_name == "terminal":
             self._open_window(
