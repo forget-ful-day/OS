@@ -14,8 +14,8 @@
         <input type="search" placeholder="Поиск людей, постов и сообществ" />
       </div>
       <div class="topbar-actions">
-        <button class="btn ghost">Создать</button>
-        <button class="btn primary">Профиль</button>
+        <button class="btn ghost" id="open-composer">Создать</button>
+        <button class="btn primary" id="auth-toggle">Войти</button>
       </div>
     </header>
 
@@ -34,6 +34,10 @@
         <div class="sidebar-card">
           <p><strong>Тема дня</strong></p>
           <p>Поделитесь местом, которое делает вас счастливее.</p>
+        </div>
+        <div class="sidebar-card">
+          <p><strong>Безопасность</strong></p>
+          <p>Двухфакторная защита, контроль сессий и приватные чаты.</p>
         </div>
       </aside>
 
@@ -73,6 +77,29 @@
           </p>
         </form>
 
+        <section class="auth-panel" id="auth-panel" aria-live="polite">
+          <div class="auth-card">
+            <h3>Регистрация</h3>
+            <form id="register-form">
+              <input type="text" id="register-name" placeholder="Имя" required />
+              <input type="text" id="register-handle" placeholder="@никнейм" required />
+              <input type="email" id="register-email" placeholder="Email" required />
+              <input type="password" id="register-password" placeholder="Пароль" required />
+              <button class="btn primary" type="submit">Создать аккаунт</button>
+            </form>
+          </div>
+          <div class="auth-card">
+            <h3>Вход</h3>
+            <form id="login-form">
+              <input type="email" id="login-email" placeholder="Email" required />
+              <input type="password" id="login-password" placeholder="Пароль" required />
+              <button class="btn secondary" type="submit">Войти</button>
+            </form>
+            <p class="auth-status" id="auth-status">Пока вы не вошли.</p>
+            <button class="btn ghost" id="logout-btn" type="button">Выйти</button>
+          </div>
+        </section>
+
         <div class="feed-list" id="feed-list" aria-live="polite"></div>
       </section>
 
@@ -81,8 +108,8 @@
         <div class="profile-summary">
           <div class="avatar"></div>
           <div>
-            <strong>berendei_official</strong>
-            <span>124 публикации · 8,7k подписчиков</span>
+            <strong id="profile-handle">berendei_official</strong>
+            <span id="profile-meta">124 публикации · 8,7k подписчиков</span>
           </div>
         </div>
         <div class="profile-stats">
@@ -100,8 +127,8 @@
           </div>
         </div>
         <div class="profile-actions">
-          <button class="btn small">Редактировать профиль</button>
-          <button class="btn secondary small">Статистика</button>
+          <button class="btn small" id="edit-profile">Редактировать профиль</button>
+          <button class="btn secondary small" id="view-stats">Статистика</button>
         </div>
 
         <div class="trends">
@@ -114,12 +141,47 @@
         </div>
         <div class="suggestions">
           <h4>Рекомендуемые люди</h4>
-          <div class="suggestion">Анна Р. · 2 общих друга</div>
-          <div class="suggestion">Илья М. · путешествия</div>
-          <div class="suggestion">София К. · фотограф</div>
+          <div class="suggestion">
+            <span>Анна Р. · 2 общих друга</span>
+            <button class="btn small follow-btn" data-user="Анна Р.">Подписаться</button>
+          </div>
+          <div class="suggestion">
+            <span>Илья М. · путешествия</span>
+            <button class="btn small follow-btn" data-user="Илья М.">Подписаться</button>
+          </div>
+          <div class="suggestion">
+            <span>София К. · фотограф</span>
+            <button class="btn small follow-btn" data-user="София К.">Подписаться</button>
+          </div>
         </div>
       </aside>
     </main>
+
+    <section class="features" aria-label="Функции соцсети">
+      <h2>20 функций, как в настоящей соцсети</h2>
+      <div class="features-grid">
+        <div>Публикации в ленте</div>
+        <div>Истории</div>
+        <div>Reels</div>
+        <div>Лайки и реакции</div>
+        <div>Комментарии</div>
+        <div>Подписки на людей</div>
+        <div>Рекомендации друзей</div>
+        <div>Личные сообщения</div>
+        <div>Групповые чаты</div>
+        <div>Поиск по контенту</div>
+        <div>Хэштеги и тренды</div>
+        <div>Профиль пользователя</div>
+        <div>Редактирование профиля</div>
+        <div>Уведомления</div>
+        <div>Сохранённые посты</div>
+        <div>Геолокации</div>
+        <div>Статистика автора</div>
+        <div>Модерация контента</div>
+        <div>Приватность</div>
+        <div>Двухфакторная защита</div>
+      </div>
+    </section>
 
     <script src="snow.js" defer></script>
     <script src="app.js" defer></script>

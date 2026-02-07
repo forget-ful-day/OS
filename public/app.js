@@ -2,8 +2,19 @@ const feedList = document.getElementById('feed-list');
 const composer = document.getElementById('composer');
 const contentInput = document.getElementById('post-content');
 const locationInput = document.getElementById('post-location');
+const authToggle = document.getElementById('auth-toggle');
+const authPanel = document.getElementById('auth-panel');
+const registerForm = document.getElementById('register-form');
+const loginForm = document.getElementById('login-form');
+const authStatus = document.getElementById('auth-status');
+const logoutBtn = document.getElementById('logout-btn');
+const profileHandle = document.getElementById('profile-handle');
+const profileMeta = document.getElementById('profile-meta');
+const followButtons = document.querySelectorAll('.follow-btn');
+const openComposer = document.getElementById('open-composer');
 
 const storageKey = 'berendeiPosts';
+const userKey = 'berendeiUser';
 
 const defaultPosts = [
   {
@@ -45,9 +56,30 @@ const loadPosts = () => {
 };
 
 let posts = loadPosts();
+let currentUser = JSON.parse(localStorage.getItem(userKey) || 'null');
 
 const savePosts = () => {
   localStorage.setItem(storageKey, JSON.stringify(posts));
+};
+
+const saveUser = () => {
+  localStorage.setItem(userKey, JSON.stringify(currentUser));
+};
+
+const updateAuthUI = () => {
+  if (currentUser) {
+    authStatus.textContent = `Вы вошли как ${currentUser.handle}.`;
+    authToggle.textContent = 'Профиль';
+    profileHandle.textContent = currentUser.handle;
+    profileMeta.textContent = `${currentUser.name} · ${currentUser.email}`;
+    logoutBtn.style.display = 'inline-flex';
+  } else {
+    authStatus.textContent = 'Пока вы не вошли.';
+    authToggle.textContent = 'Войти';
+    profileHandle.textContent = 'berendei_official';
+    profileMeta.textContent = '124 публикации · 8,7k подписчиков';
+    logoutBtn.style.display = 'none';
+  }
 };
 
 const createPostCard = (post) => {
@@ -91,13 +123,18 @@ const renderPosts = () => {
 
 const addPost = (event) => {
   event.preventDefault();
+  if (!currentUser) {
+    authStatus.textContent = 'Сначала войдите, чтобы публиковать посты.';
+    authPanel.scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
   const content = contentInput.value.trim();
   if (!content) return;
 
   const location = locationInput.value.trim();
   const newPost = {
     id: `post-${Date.now()}`,
-    author: 'berendei_official',
+    author: currentUser.handle,
     location: location || 'Онлайн',
     content,
     preview: 'Новый пост от вашего аккаунта',
@@ -139,6 +176,11 @@ const handleFeedClick = (event) => {
 const handleCommentSubmit = (event) => {
   if (!event.target.classList.contains('comment-form')) return;
   event.preventDefault();
+  if (!currentUser) {
+    authStatus.textContent = 'Войдите, чтобы оставлять комментарии.';
+    authPanel.scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
   const card = event.target.closest('.feed-item');
   if (!card) return;
   const postId = card.dataset.postId;
@@ -152,8 +194,71 @@ const handleCommentSubmit = (event) => {
   renderPosts();
 };
 
+const handleRegister = (event) => {
+  event.preventDefault();
+  const name = document.getElementById('register-name').value.trim();
+  const handleInput = document.getElementById('register-handle').value.trim();
+  const email = document.getElementById('register-email').value.trim();
+  const password = document.getElementById('register-password').value.trim();
+  if (!name || !handleInput || !email || !password) return;
+
+  currentUser = {
+    name,
+    handle: handleInput.startsWith('@') ? handleInput : `@${handleInput}`,
+    email,
+  };
+  saveUser();
+  updateAuthUI();
+  registerForm.reset();
+};
+
+const handleLogin = (event) => {
+  event.preventDefault();
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value.trim();
+  if (!email || !password) return;
+
+  currentUser = currentUser || {
+    name: 'Пользователь',
+    handle: '@berendei_user',
+    email,
+  };
+  saveUser();
+  updateAuthUI();
+  loginForm.reset();
+};
+
+const handleLogout = () => {
+  currentUser = null;
+  saveUser();
+  updateAuthUI();
+};
+
+const handleFollow = (event) => {
+  const button = event.target.closest('.follow-btn');
+  if (!button) return;
+  if (!currentUser) {
+    authStatus.textContent = 'Войдите, чтобы подписываться.';
+    authPanel.scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+  button.textContent = button.textContent === 'Подписаться' ? 'Вы подписаны' : 'Подписаться';
+};
+
+openComposer.addEventListener('click', () => {
+  composer.scrollIntoView({ behavior: 'smooth' });
+  contentInput.focus();
+});
 composer.addEventListener('submit', addPost);
 feedList.addEventListener('click', handleFeedClick);
 feedList.addEventListener('submit', handleCommentSubmit);
+registerForm.addEventListener('submit', handleRegister);
+loginForm.addEventListener('submit', handleLogin);
+logoutBtn.addEventListener('click', handleLogout);
+followButtons.forEach((button) => button.addEventListener('click', handleFollow));
+authToggle.addEventListener('click', () => {
+  authPanel.scrollIntoView({ behavior: 'smooth' });
+});
 
 renderPosts();
+updateAuthUI();
