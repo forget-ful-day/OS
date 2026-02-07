@@ -1,8 +1,6 @@
 import json
 import os
 import shutil
-import sys
-import time
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
@@ -51,6 +49,111 @@ THEMES = {
         "accent": "#ff4dff",
     },
 }
+
+ICON_STYLES = {
+    "File Explorer": {"color": "#4e79ff", "symbol": "📁"},
+    "Settings": {"color": "#7a7a7a", "symbol": "⚙️"},
+    "App Store": {"color": "#ff7b2f", "symbol": "🛒"},
+    "Control Center": {"color": "#20c997", "symbol": "🎛️"},
+    "Games Hub": {"color": "#ff5c7a", "symbol": "🎮"},
+    "Media Player": {"color": "#6f42c1", "symbol": "🎵"},
+    "Gallery": {"color": "#0dcaf0", "symbol": "🖼️"},
+    "Calendar": {"color": "#ffc107", "symbol": "📅"},
+    "Calculator": {"color": "#198754", "symbol": "🧮"},
+    "Weather": {"color": "#0d6efd", "symbol": "☀️"},
+    "Documents": {"color": "#fd7e14", "symbol": "📄"},
+}
+
+FEATURE_TOGGLES = [
+    "Focus Assist",
+    "Night Light",
+    "Wi-Fi",
+    "Bluetooth",
+    "Airplane Mode",
+    "Battery Saver",
+    "Notifications",
+    "Quick Share",
+    "Cloud Sync",
+    "Auto Update",
+    "Voice Assistant",
+    "Screen Recorder",
+    "Performance Mode",
+    "Accessibility",
+    "Spatial Audio",
+    "Game Mode",
+    "Clipboard History",
+    "Virtual Desktops",
+    "Auto Brightness",
+    "Theme Scheduler",
+    "Widget Panel",
+    "Security Shield",
+    "VPN",
+    "Device Finder",
+    "System Telemetry",
+]
+
+
+def create_rounded_rect(canvas, x1, y1, x2, y2, radius=12, **kwargs):
+    points = [
+        x1 + radius,
+        y1,
+        x2 - radius,
+        y1,
+        x2,
+        y1,
+        x2,
+        y1 + radius,
+        x2,
+        y2 - radius,
+        x2,
+        y2,
+        x2 - radius,
+        y2,
+        x1 + radius,
+        y2,
+        x1,
+        y2,
+        x1,
+        y2 - radius,
+        x1,
+        y1 + radius,
+        x1,
+        y1,
+    ]
+    return canvas.create_polygon(points, smooth=True, **kwargs)
+
+
+class RoundedButton(tk.Canvas):
+    def __init__(self, master, text, command, theme, width=160, height=34):
+        super().__init__(master, width=width, height=height, highlightthickness=0, bg=theme["window_bg"])
+        self.command = command
+        self.theme = theme
+        self.rect = create_rounded_rect(
+            self,
+            2,
+            2,
+            width - 2,
+            height - 2,
+            radius=12,
+            fill=theme["taskbar_bg"],
+            outline=theme["accent"],
+        )
+        self.label = self.create_text(
+            width / 2,
+            height / 2,
+            text=text,
+            fill=theme["text"],
+            font=("Segoe UI", 10, "bold"),
+        )
+        self.bind("<Button-1>", lambda event: self.command())
+        self.bind("<Enter>", lambda event: self.itemconfig(self.rect, fill=theme["accent"]))
+        self.bind("<Leave>", lambda event: self.itemconfig(self.rect, fill=theme["taskbar_bg"]))
+
+    def update_theme(self, theme):
+        self.theme = theme
+        self.configure(bg=theme["window_bg"])
+        self.itemconfig(self.rect, fill=theme["taskbar_bg"], outline=theme["accent"])
+        self.itemconfig(self.label, fill=theme["text"])
 
 
 def ensure_directories():
@@ -161,9 +264,9 @@ class FileExplorer(Window):
         self.listbox.bind("<Double-Button-1>", self.open_item)
         buttons = tk.Frame(body, bg=theme["window_bg"])
         buttons.pack(side="right", fill="y", padx=10, pady=10)
-        tk.Button(buttons, text="Upload", command=self.upload_file).pack(fill="x", pady=4)
-        tk.Button(buttons, text="New Folder", command=self.create_folder).pack(fill="x", pady=4)
-        tk.Button(buttons, text="Open", command=self.open_item).pack(fill="x", pady=4)
+        RoundedButton(buttons, "Upload", self.upload_file, theme, width=140).pack(pady=4)
+        RoundedButton(buttons, "New Folder", self.create_folder, theme, width=140).pack(pady=4)
+        RoundedButton(buttons, "Open", self.open_item, theme, width=140).pack(pady=4)
         self.refresh()
 
     def refresh(self):
@@ -243,7 +346,7 @@ class AppInstaller(Window):
         for entry in sorted(os.listdir(STORE_DIR)):
             if entry.endswith(".butterfly"):
                 self.listbox.insert(tk.END, entry)
-        tk.Button(body, text="Install", command=self.install_selected).pack(side="right", padx=10)
+        RoundedButton(body, "Install", self.install_selected, theme, width=120).pack(side="right", padx=10)
 
     def install_selected(self):
         selection = self.listbox.curselection()
@@ -280,13 +383,13 @@ class SettingsWindow(Window):
                 fg=theme["text"],
                 selectcolor=theme["window_bg"],
             ).pack(anchor="w")
-        tk.Button(body, text="Apply Theme", command=self.apply_theme).pack(pady=6)
+        RoundedButton(body, "Apply Theme", self.apply_theme, theme, width=140).pack(pady=6)
         tk.Label(body, text="Users", bg=theme["window_bg"], fg=theme["text"]).pack(anchor="w", pady=(12, 0))
         self.user_list = tk.Listbox(body, height=4)
         self.user_list.pack(fill="x")
         for name in self.users["users"]:
             self.user_list.insert(tk.END, name)
-        tk.Button(body, text="Add User", command=self.add_user).pack(pady=4)
+        RoundedButton(body, "Add User", self.add_user, theme, width=140).pack(pady=4)
 
     def apply_theme(self):
         self.config["theme"] = self.theme_var.get()
@@ -306,6 +409,57 @@ class SettingsWindow(Window):
         save_json(USERS_PATH, self.users)
         self.user_list.insert(tk.END, username)
         messagebox.showinfo("Butterfly OS", "User created.")
+
+
+class ControlCenter(Window):
+    def __init__(self, master, theme, config):
+        super().__init__(master, "Control Center", theme)
+        body = tk.Frame(self, bg=theme["window_bg"])
+        body.pack(fill="both", expand=True, padx=10, pady=10)
+        tk.Label(
+            body,
+            text="Quick Features (25)",
+            bg=theme["window_bg"],
+            fg=theme["text"],
+            font=("Segoe UI", 12, "bold"),
+        ).pack(anchor="w", pady=(0, 10))
+        grid = tk.Frame(body, bg=theme["window_bg"])
+        grid.pack(fill="both", expand=True)
+        self.toggle_vars = {}
+        for idx, name in enumerate(FEATURE_TOGGLES):
+            var = tk.BooleanVar(value=False)
+            self.toggle_vars[name] = var
+            row = idx // 3
+            col = idx % 3
+            card = tk.Frame(grid, bg=theme["taskbar_bg"], highlightbackground=theme["accent"], highlightthickness=1)
+            card.grid(row=row, column=col, padx=6, pady=6, sticky="nsew")
+            tk.Label(card, text=name, bg=theme["taskbar_bg"], fg=theme["text"]).pack(padx=8, pady=(8, 4))
+            toggle = ttk.Checkbutton(card, variable=var)
+            toggle.pack(pady=(0, 8))
+        for col in range(3):
+            grid.grid_columnconfigure(col, weight=1)
+
+
+class GenericAppWindow(Window):
+    def __init__(self, master, theme, title, description):
+        super().__init__(master, title, theme)
+        body = tk.Frame(self, bg=theme["window_bg"])
+        body.pack(fill="both", expand=True, padx=20, pady=20)
+        tk.Label(
+            body,
+            text=title,
+            font=("Segoe UI", 16, "bold"),
+            bg=theme["window_bg"],
+            fg=theme["text"],
+        ).pack(anchor="w")
+        tk.Label(
+            body,
+            text=description,
+            bg=theme["window_bg"],
+            fg=theme["text"],
+            justify="left",
+            wraplength=520,
+        ).pack(anchor="w", pady=10)
 
 
 class LoginScreen(tk.Toplevel):
@@ -332,7 +486,7 @@ class LoginScreen(tk.Toplevel):
         tk.Label(frame, text="Password", bg=theme["desktop_bg"], fg=theme["text"]).pack()
         self.pass_entry = tk.Entry(frame, show="*")
         self.pass_entry.pack(pady=4)
-        tk.Button(frame, text="Login", command=self.login).pack(pady=8)
+        RoundedButton(frame, "Login", self.login, theme, width=140).pack(pady=8)
 
     def login(self):
         user = self.user_var.get()
@@ -359,13 +513,13 @@ class DesktopApp(tk.Tk):
         self.desktop.pack(fill="both", expand=True)
         self.taskbar = tk.Frame(self, bg=self.theme["taskbar_bg"], height=40)
         self.taskbar.place(relx=0, rely=1, anchor="sw", relwidth=1)
-        self.start_button = tk.Button(
+        self.start_button = RoundedButton(
             self.taskbar,
-            text="Start",
-            command=self.toggle_start_menu,
-            bg=self.theme["accent"],
-            fg="white",
-            relief="flat",
+            "Start",
+            self.toggle_start_menu,
+            self.theme,
+            width=90,
+            height=30,
         )
         self.start_button.pack(side="left", padx=6, pady=4)
         self.taskbar_apps = tk.Frame(self.taskbar, bg=self.theme["taskbar_bg"])
@@ -404,25 +558,27 @@ class DesktopApp(tk.Tk):
             ("File Explorer", lambda: self.launch_app("explorer")),
             ("Settings", lambda: self.launch_app("settings")),
             ("App Store", lambda: self.launch_app("store")),
+            ("Control Center", lambda: self.launch_app("control")),
             ("Switch User", self.show_login),
             ("Lock", self.lock_screen),
             ("Shutdown", self.quit),
         ]
         for label, command in buttons:
-            tk.Button(
-                self.start_menu,
-                text=label,
-                command=command,
-                bg=self.theme["window_bg"],
-                fg=self.theme["text"],
-                relief="flat",
-            ).pack(fill="x", padx=8, pady=4)
+            RoundedButton(self.start_menu, label, command, self.theme, width=190).pack(padx=8, pady=4)
 
     def _build_icons(self):
         self.icons = {
             "File Explorer": {"app": "explorer"},
             "Settings": {"app": "settings"},
             "App Store": {"app": "store"},
+            "Control Center": {"app": "control"},
+            "Games Hub": {"app": "games"},
+            "Media Player": {"app": "media"},
+            "Gallery": {"app": "gallery"},
+            "Calendar": {"app": "calendar"},
+            "Calculator": {"app": "calculator"},
+            "Weather": {"app": "weather"},
+            "Documents": {"app": "documents"},
         }
         for app in self.get_installed_apps():
             self.icons[app] = {"app": app}
@@ -440,18 +596,28 @@ class DesktopApp(tk.Tk):
             else:
                 x = 60 + col * padding
                 y = 60 + row * padding
-            icon = self.desktop.create_rectangle(
-                x - 28,
-                y - 28,
-                x + 28,
-                y + 28,
-                fill=self.theme["window_bg"],
-                outline=self.theme["accent"],
+            style = ICON_STYLES.get(name, {"color": self.theme["accent"], "symbol": "🦋"})
+            self.desktop.create_oval(
+                x - 26,
+                y - 26,
+                x + 26,
+                y + 26,
+                fill=style["color"],
+                outline=self.theme["window_bg"],
+                width=2,
                 tags=("icon", name),
             )
-            text = self.desktop.create_text(
+            self.desktop.create_text(
                 x,
-                y + 40,
+                y,
+                text=style["symbol"],
+                fill="white",
+                font=("Segoe UI Emoji", 16),
+                tags=("icon", name),
+            )
+            self.desktop.create_text(
+                x,
+                y + 42,
                 text=name,
                 fill=self.theme["text"],
                 font=("Segoe UI", 9),
@@ -518,13 +684,13 @@ class DesktopApp(tk.Tk):
         for widget in self.taskbar_apps.winfo_children():
             widget.destroy()
         for name in self.open_windows:
-            tk.Button(
+            RoundedButton(
                 self.taskbar_apps,
-                text=name,
-                command=lambda n=name: self.focus_window(n),
-                bg=self.theme["taskbar_bg"],
-                fg=self.theme["text"],
-                relief="flat",
+                name,
+                lambda n=name: self.focus_window(n),
+                self.theme,
+                width=120,
+                height=28,
             ).pack(side="left", padx=4)
 
     def focus_window(self, name):
@@ -545,6 +711,51 @@ class DesktopApp(tk.Tk):
             return
         if app_name == "store":
             self._open_window("App Store", lambda: AppInstaller(self, self.theme, self.refresh_apps))
+            return
+        if app_name == "control":
+            self._open_window("Control Center", lambda: ControlCenter(self, self.theme, self.config_data))
+            return
+        if app_name == "games":
+            self._open_window(
+                "Games Hub",
+                lambda: GenericAppWindow(self, self.theme, "Games Hub", "Your arcade of Butterfly OS mini-games."),
+            )
+            return
+        if app_name == "media":
+            self._open_window(
+                "Media Player",
+                lambda: GenericAppWindow(self, self.theme, "Media Player", "Play your favorite tracks and videos."),
+            )
+            return
+        if app_name == "gallery":
+            self._open_window(
+                "Gallery",
+                lambda: GenericAppWindow(self, self.theme, "Gallery", "Browse photos stored in Butterfly FS."),
+            )
+            return
+        if app_name == "calendar":
+            self._open_window(
+                "Calendar",
+                lambda: GenericAppWindow(self, self.theme, "Calendar", "Manage your schedule and reminders."),
+            )
+            return
+        if app_name == "calculator":
+            self._open_window(
+                "Calculator",
+                lambda: GenericAppWindow(self, self.theme, "Calculator", "Quick calculations with style."),
+            )
+            return
+        if app_name == "weather":
+            self._open_window(
+                "Weather",
+                lambda: GenericAppWindow(self, self.theme, "Weather", "Forecasts and live conditions."),
+            )
+            return
+        if app_name == "documents":
+            self._open_window(
+                "Documents",
+                lambda: GenericAppWindow(self, self.theme, "Documents", "Open and manage your documents."),
+            )
             return
         if app_name.endswith(".butterfly"):
             self._open_window(app_name, lambda: self.run_butterfly_app(app_name))
@@ -599,7 +810,7 @@ class DesktopApp(tk.Tk):
         self.configure(bg=self.theme["desktop_bg"])
         self.desktop.configure(bg=self.theme["desktop_bg"])
         self.taskbar.configure(bg=self.theme["taskbar_bg"])
-        self.start_button.configure(bg=self.theme["accent"])
+        self.start_button.update_theme(self.theme)
         self.taskbar_apps.configure(bg=self.theme["taskbar_bg"])
         self._build_icons()
         self.update_taskbar()
@@ -629,7 +840,7 @@ class DesktopApp(tk.Tk):
             else:
                 messagebox.showerror("Butterfly OS", "Invalid password.")
 
-        tk.Button(frame, text="Unlock", command=unlock).pack(pady=8)
+        RoundedButton(frame, "Unlock", unlock, self.theme, width=140).pack(pady=8)
 
 
 def seed_store():
