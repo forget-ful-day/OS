@@ -114,38 +114,33 @@
               <div class="story"><span>Юлия</span></div>
               <div class="story"><span>Кирилл</span></div>
             </div>
-            <article class="feed-item">
-              <div class="feed-header">
+            <form class="composer" id="composer">
+              <div class="composer-header">
                 <div class="avatar small"></div>
                 <div>
-                  <strong>Мария С.</strong>
-                  <span>2 часа назад · Санкт-Петербург</span>
+                  <strong>sozsfera_official</strong>
+                  <span>Создайте новый пост и поделитесь новостью</span>
                 </div>
               </div>
-              <div class="post-preview">Фото: утренний кофе и план на неделю</div>
-              <p>Запустила марафон “7 дней осознанности”. Кто со мной?</p>
-              <div class="feed-actions">
-                <span>❤️ 1 248</span>
-                <span>💬 96</span>
-                <span>📌 Сохранить</span>
+              <textarea
+                id="post-content"
+                rows="3"
+                placeholder="Что нового? Расскажите своей аудитории..."
+                required
+              ></textarea>
+              <div class="composer-footer">
+                <input
+                  type="text"
+                  id="post-location"
+                  placeholder="Локация (например, Москва)"
+                />
+                <button class="btn primary" type="submit">Опубликовать</button>
               </div>
-            </article>
-            <article class="feed-item">
-              <div class="feed-header">
-                <div class="avatar small"></div>
-                <div>
-                  <strong>Дмитрий Л.</strong>
-                  <span>Вчера · Казань</span>
-                </div>
-              </div>
-              <div class="post-preview">Видео: вечерний джем в студии</div>
-              <p>Новый Reels уже в профиле! Делюсь секретами лайв-саунда.</p>
-              <div class="feed-actions">
-                <span>❤️ 3 542</span>
-                <span>💬 210</span>
-                <span>🔁 Поделиться</span>
-              </div>
-            </article>
+              <p class="composer-hint">
+                Посты сохраняются в вашем браузере и доступны сразу после публикации.
+              </p>
+            </form>
+            <div class="feed-list" id="feed-list" aria-live="polite"></div>
           </div>
           <aside class="profile-card">
             <h3>Ваш профиль</h3>
@@ -215,5 +210,6 @@
       </div>
     </footer>
     <script src="snow.js" defer></script>
+    <script src="app.js" defer></script>
   </body>
 </html>
