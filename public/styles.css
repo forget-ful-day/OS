@@ -1,13 +1,14 @@
 :root {
-  color-scheme: light;
-  --bg: #eef1ea;
-  --surface: #ffffff;
-  --primary: #2f6b4f;
-  --primary-dark: #24543d;
-  --accent: #a7d7c5;
-  --text: #1c2a23;
-  --muted: #5a6b61;
-  --shadow: 0 20px 40px rgba(47, 107, 79, 0.15);
+  color-scheme: dark;
+  --bg: #0f1412;
+  --surface: #1a221e;
+  --primary: #5cc28c;
+  --primary-dark: #3b8b63;
+  --accent: #2b4a3b;
+  --text: #eef5f0;
+  --muted: #a3b5aa;
+  --shadow: 0 20px 40px rgba(8, 12, 10, 0.45);
+  --border: #2a3a33;
 }
 
 * {
@@ -42,7 +43,7 @@ body {
   justify-content: space-between;
   gap: 20px;
   padding: 16px 8%;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(20, 28, 24, 0.92);
   backdrop-filter: blur(12px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
 }
@@ -60,11 +61,12 @@ body {
 
 .search input {
   width: 100%;
-  border: 1px solid #d6dfd8;
+  border: 1px solid var(--border);
   border-radius: 999px;
   padding: 10px 18px;
-  background: #f8faf7;
+  background: #141b17;
   font-size: 0.95rem;
+  color: var(--text);
 }
 
 .topbar-actions {
@@ -93,14 +95,68 @@ body {
 }
 
 .btn.secondary {
-  background: #dfe9e2;
-  color: var(--primary-dark);
+  background: #23322b;
+  color: var(--text);
 }
 
 .btn.ghost {
   background: transparent;
-  border: 1px solid #c7d4cc;
-  color: var(--primary-dark);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+
+.app-hidden {
+  display: none;
+}
+
+.auth-gate {
+  min-height: 100vh;
+  display: grid;
+  gap: 24px;
+  place-content: center;
+  padding: 40px 8%;
+  position: relative;
+  z-index: 2;
+}
+
+.auth-gate-card {
+  background: var(--surface);
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: 16px;
+  max-width: 520px;
+}
+
+.auth-gate-card h1,
+.auth-gate-card h2 {
+  font-size: 1.6rem;
+}
+
+.auth-gate-card p {
+  color: var(--muted);
+}
+
+.auth-form {
+  display: grid;
+  gap: 12px;
+}
+
+.auth-form input {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 0.95rem;
+  background: #141b17;
+  color: var(--text);
+}
+
+.auth-switch {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--muted);
 }
 
 .btn.small {
@@ -137,7 +193,7 @@ body {
 }
 
 .sidebar-card {
-  background: #e7f1ea;
+  background: #1f2a24;
   padding: 14px;
   border-radius: 14px;
   color: var(--primary-dark);
@@ -156,7 +212,7 @@ body {
 }
 
 .story {
-  background: linear-gradient(135deg, #3d7c5f, #7fc4a4);
+  background: linear-gradient(135deg, #2f6b4f, #5cc28c);
   color: var(--surface);
   border-radius: 16px;
   padding: 16px 10px;
@@ -197,12 +253,13 @@ body {
 }
 
 .composer textarea {
-  border: 1px solid #d6dfd8;
+  border: 1px solid var(--border);
   border-radius: 14px;
   padding: 12px;
   resize: vertical;
   font-size: 0.95rem;
-  background: #f8faf7;
+  background: #141b17;
+  color: var(--text);
 }
 
 .composer-footer {
@@ -216,11 +273,12 @@ body {
 .composer-footer input {
   flex: 1;
   min-width: 220px;
-  border: 1px solid #d6dfd8;
+  border: 1px solid var(--border);
   border-radius: 999px;
   padding: 10px 16px;
   font-size: 0.9rem;
-  background: #f8faf7;
+  background: #141b17;
+  color: var(--text);
 }
 
 .composer-hint {
@@ -249,11 +307,12 @@ body {
 }
 
 .auth-card input {
-  border: 1px solid #d6dfd8;
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 10px 14px;
   font-size: 0.9rem;
-  background: #f8faf7;
+  background: #141b17;
+  color: var(--text);
 }
 
 .auth-status {
@@ -262,10 +321,10 @@ body {
 }
 
 .feed-item {
-  background: #f5f7f2;
+  background: #17201b;
   padding: 22px;
   border-radius: 18px;
-  border: 1px solid #dbe5dd;
+  border: 1px solid var(--border);
 }
 
 .feed-header {
@@ -282,7 +341,7 @@ body {
 }
 
 .post-preview {
-  background: linear-gradient(120deg, #e6f0e9, #cfe5d9);
+  background: linear-gradient(120deg, #23322b, #1e2b25);
   border-radius: 16px;
   padding: 24px;
   color: var(--primary-dark);
@@ -324,10 +383,12 @@ body {
 
 .comment-form input {
   flex: 1;
-  border: 1px solid #d6dfd8;
+  border: 1px solid var(--border);
   border-radius: 999px;
   padding: 8px 14px;
   font-size: 0.85rem;
+  background: #141b17;
+  color: var(--text);
 }
 
 .comment-form button {
@@ -344,7 +405,7 @@ body {
   width: 54px;
   height: 54px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #2f6b4f, #8bc7aa);
+  background: linear-gradient(135deg, #2f6b4f, #5cc28c);
 }
 
 .avatar.small {
@@ -399,7 +460,7 @@ body {
 }
 
 .suggestion {
-  background: #f1f5f0;
+  background: #1b241f;
   border-radius: 12px;
   padding: 8px 12px;
   display: flex;
@@ -426,7 +487,7 @@ body {
 }
 
 .features-grid div {
-  background: var(--surface);
+  background: #1b241f;
   border-radius: 14px;
   padding: 12px 14px;
   box-shadow: var(--shadow);

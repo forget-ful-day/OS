@@ -3,11 +3,15 @@ const composer = document.getElementById('composer');
 const contentInput = document.getElementById('post-content');
 const locationInput = document.getElementById('post-location');
 const authToggle = document.getElementById('auth-toggle');
-const authPanel = document.getElementById('auth-panel');
+const authGate = document.getElementById('auth-gate');
+const appShell = document.getElementById('app-shell');
+const appTopbar = document.getElementById('app-topbar');
+const featuresSection = document.getElementById('features');
 const registerForm = document.getElementById('register-form');
 const loginForm = document.getElementById('login-form');
 const authStatus = document.getElementById('auth-status');
 const logoutBtn = document.getElementById('logout-btn');
+const openLogin = document.getElementById('open-login');
 const profileHandle = document.getElementById('profile-handle');
 const profileMeta = document.getElementById('profile-meta');
 const followButtons = document.querySelectorAll('.follow-btn');
@@ -16,30 +20,7 @@ const openComposer = document.getElementById('open-composer');
 const storageKey = 'berendeiPosts';
 const userKey = 'berendeiUser';
 
-const defaultPosts = [
-  {
-    id: 'post-1',
-    author: 'Анна Р.',
-    location: 'Суздаль',
-    content: 'Нашла маршрут по зимнему лесу — делюсь теплом и вдохновением.',
-    preview: 'Фото: снежная тропа и горячий чай',
-    likes: 842,
-    liked: false,
-    comments: ['Какая красота!', 'Хочу туда же.'],
-    time: '2 часа назад',
-  },
-  {
-    id: 'post-2',
-    author: 'Илья М.',
-    location: 'Казань',
-    content: 'Собрал подборку уютных мест для встреч с друзьями.',
-    preview: 'Подборка: лучшие места этой недели',
-    likes: 1520,
-    liked: false,
-    comments: ['Отличные советы!', 'Добавлю в планы.'],
-    time: 'Вчера',
-  },
-];
+const defaultPosts = [];
 
 const loadPosts = () => {
   const saved = localStorage.getItem(storageKey);
@@ -73,12 +54,20 @@ const updateAuthUI = () => {
     profileHandle.textContent = currentUser.handle;
     profileMeta.textContent = `${currentUser.name} · ${currentUser.email}`;
     logoutBtn.style.display = 'inline-flex';
+    authGate.classList.add('app-hidden');
+    appShell.classList.remove('app-hidden');
+    appTopbar.classList.remove('app-hidden');
+    featuresSection.classList.remove('app-hidden');
   } else {
     authStatus.textContent = 'Пока вы не вошли.';
     authToggle.textContent = 'Войти';
     profileHandle.textContent = 'berendei_official';
     profileMeta.textContent = '124 публикации · 8,7k подписчиков';
     logoutBtn.style.display = 'none';
+    authGate.classList.remove('app-hidden');
+    appShell.classList.add('app-hidden');
+    appTopbar.classList.add('app-hidden');
+    featuresSection.classList.add('app-hidden');
   }
 };
 
@@ -125,7 +114,7 @@ const addPost = (event) => {
   event.preventDefault();
   if (!currentUser) {
     authStatus.textContent = 'Сначала войдите, чтобы публиковать посты.';
-    authPanel.scrollIntoView({ behavior: 'smooth' });
+    authGate.scrollIntoView({ behavior: 'smooth' });
     return;
   }
   const content = contentInput.value.trim();
@@ -178,7 +167,7 @@ const handleCommentSubmit = (event) => {
   event.preventDefault();
   if (!currentUser) {
     authStatus.textContent = 'Войдите, чтобы оставлять комментарии.';
-    authPanel.scrollIntoView({ behavior: 'smooth' });
+    authGate.scrollIntoView({ behavior: 'smooth' });
     return;
   }
   const card = event.target.closest('.feed-item');
@@ -239,7 +228,7 @@ const handleFollow = (event) => {
   if (!button) return;
   if (!currentUser) {
     authStatus.textContent = 'Войдите, чтобы подписываться.';
-    authPanel.scrollIntoView({ behavior: 'smooth' });
+    authGate.scrollIntoView({ behavior: 'smooth' });
     return;
   }
   button.textContent = button.textContent === 'Подписаться' ? 'Вы подписаны' : 'Подписаться';
@@ -257,7 +246,10 @@ loginForm.addEventListener('submit', handleLogin);
 logoutBtn.addEventListener('click', handleLogout);
 followButtons.forEach((button) => button.addEventListener('click', handleFollow));
 authToggle.addEventListener('click', () => {
-  authPanel.scrollIntoView({ behavior: 'smooth' });
+  authGate.scrollIntoView({ behavior: 'smooth' });
+});
+openLogin.addEventListener('click', () => {
+  document.getElementById('login-email').focus();
 });
 
 renderPosts();

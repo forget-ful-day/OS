@@ -8,18 +8,46 @@
   </head>
   <body>
     <canvas id="snowfall" aria-hidden="true"></canvas>
-    <header class="app-topbar">
+    <section class="auth-gate" id="auth-gate">
+      <div class="auth-gate-card">
+        <div class="logo">Берендей</div>
+        <h1>Создайте аккаунт</h1>
+        <p>Регистрация занимает минуту, после чего вы попадёте в ленту.</p>
+        <form id="register-form" class="auth-form">
+          <input type="text" id="register-name" placeholder="Имя" required />
+          <input type="text" id="register-handle" placeholder="@никнейм" required />
+          <input type="email" id="register-email" placeholder="Email" required />
+          <input type="password" id="register-password" placeholder="Пароль" required />
+          <button class="btn primary" type="submit">Создать аккаунт</button>
+        </form>
+        <div class="auth-switch">
+          <span>Уже есть аккаунт?</span>
+          <button class="btn ghost" id="open-login" type="button">Войти</button>
+        </div>
+      </div>
+      <div class="auth-gate-card" id="login-card">
+        <h2>Вход</h2>
+        <form id="login-form" class="auth-form">
+          <input type="email" id="login-email" placeholder="Email" required />
+          <input type="password" id="login-password" placeholder="Пароль" required />
+          <button class="btn secondary" type="submit">Войти</button>
+        </form>
+        <p class="auth-status" id="auth-status">Пока вы не вошли.</p>
+      </div>
+    </section>
+
+    <header class="app-topbar app-hidden" id="app-topbar">
       <div class="logo">Берендей</div>
       <div class="search">
         <input type="search" placeholder="Поиск людей, постов и сообществ" />
       </div>
       <div class="topbar-actions">
         <button class="btn ghost" id="open-composer">Создать</button>
-        <button class="btn primary" id="auth-toggle">Войти</button>
+        <button class="btn primary" id="auth-toggle">Профиль</button>
       </div>
     </header>
 
-    <main class="app-shell">
+    <main class="app-shell app-hidden" id="app-shell">
       <aside class="sidebar">
         <h3>Навигация</h3>
         <ul>
@@ -77,29 +105,6 @@
           </p>
         </form>
 
-        <section class="auth-panel" id="auth-panel" aria-live="polite">
-          <div class="auth-card">
-            <h3>Регистрация</h3>
-            <form id="register-form">
-              <input type="text" id="register-name" placeholder="Имя" required />
-              <input type="text" id="register-handle" placeholder="@никнейм" required />
-              <input type="email" id="register-email" placeholder="Email" required />
-              <input type="password" id="register-password" placeholder="Пароль" required />
-              <button class="btn primary" type="submit">Создать аккаунт</button>
-            </form>
-          </div>
-          <div class="auth-card">
-            <h3>Вход</h3>
-            <form id="login-form">
-              <input type="email" id="login-email" placeholder="Email" required />
-              <input type="password" id="login-password" placeholder="Пароль" required />
-              <button class="btn secondary" type="submit">Войти</button>
-            </form>
-            <p class="auth-status" id="auth-status">Пока вы не вошли.</p>
-            <button class="btn ghost" id="logout-btn" type="button">Выйти</button>
-          </div>
-        </section>
-
         <div class="feed-list" id="feed-list" aria-live="polite"></div>
       </section>
 
@@ -129,6 +134,7 @@
         <div class="profile-actions">
           <button class="btn small" id="edit-profile">Редактировать профиль</button>
           <button class="btn secondary small" id="view-stats">Статистика</button>
+          <button class="btn ghost small" id="logout-btn" type="button">Выйти</button>
         </div>
 
         <div class="trends">
@@ -157,7 +163,7 @@
       </aside>
     </main>
 
-    <section class="features" aria-label="Функции соцсети">
+    <section class="features app-hidden" id="features" aria-label="Функции соцсети">
       <h2>20 функций, как в настоящей соцсети</h2>
       <div class="features-grid">
         <div>Публикации в ленте</div>
