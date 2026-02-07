@@ -1,0 +1,12 @@
+{
+  "name": "social-network-site",
+  "version": "1.0.0",
+  "description": "Simple social network landing page on Node.js",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
