@@ -49,8 +49,11 @@ class Window(tk.Toplevel):
         self.on_close = on_close
         self.configure(bg=theme["window_bg"])
         self.title(title)
-        self.attributes("-fullscreen", True)
-        self.geometry(f"{self.winfo_screenwidth()}x{self.winfo_screenheight()}+0+0")
+        width = 980
+        height = 620
+        x = (self.winfo_screenwidth() - width) // 2
+        y = (self.winfo_screenheight() - height) // 2
+        self.geometry(f"{width}x{height}+{x}+{y}")
         self.protocol("WM_DELETE_WINDOW", self.close)
         self._make_title_bar(title)
 
@@ -209,20 +212,29 @@ class AppInstaller(Window):
         messagebox.showinfo("Butterfly OS", f"Установлено: {name}.")
 
     def install_from_file(self):
-        folder = filedialog.askdirectory()
-        if not folder:
+        file_path = filedialog.askopenfilename(
+            filetypes=[
+                ("Butterfly файл", "*.butterfly"),
+                ("Python файл", "*.py"),
+                ("Все файлы", "*.*"),
+            ]
+        )
+        if not file_path:
             return
-        if not folder.endswith(".butterfly"):
-            messagebox.showerror("Butterfly OS", "Нужна папка с расширением .butterfly.")
-            return
-        name = os.path.basename(folder)
-        dst = os.path.join(APPS_DIR, name)
+        base_name = os.path.splitext(os.path.basename(file_path))[0]
+        package_name = f"{base_name}.butterfly"
+        dst = os.path.join(APPS_DIR, package_name)
         if os.path.exists(dst):
             messagebox.showinfo("Butterfly OS", "Уже установлено.")
             return
-        shutil.copytree(folder, dst)
+        os.makedirs(dst, exist_ok=True)
+        main_path = os.path.join(dst, "main.py")
+        shutil.copy(file_path, main_path)
+        manifest_path = os.path.join(dst, "manifest.json")
+        with open(manifest_path, "w", encoding="utf-8") as file:
+            json.dump({"name": base_name}, file, indent=2)
         self.on_install()
-        messagebox.showinfo("Butterfly OS", f"Установлено: {name}.")
+        messagebox.showinfo("Butterfly OS", f"Установлено: {package_name}.")
 
 
 class SettingsWindow(Window):
