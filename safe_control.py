@@ -38,6 +38,19 @@ except Exception:  # pragma: no cover
 DEFAULT_PORT = 8000
 DEFAULT_POLL_SECONDS = 3
 
+CONFIG = {
+    "MODE": "hub",
+    "BOT_TOKEN": "PASTE_BOT_TOKEN",
+    "ADMIN_IDS": [123456789],
+    "HUB_SECRET": "change-me",
+    "HUB_HOST": "0.0.0.0",
+    "HUB_PORT": DEFAULT_PORT,
+    "HUB_URL": "http://127.0.0.1:8000",
+    "DEVICE_ID": "",
+    "DEVICE_NAME": "",
+    "BASE_DIR": os.path.expanduser("~/safe_agent"),
+}
+
 
 @dataclass
 class Command:
@@ -688,30 +701,44 @@ def parse_args() -> argparse.Namespace:
     sub = parser.add_subparsers(dest="mode", required=True)
 
     hub = sub.add_parser("hub", help="run hub + telegram bot")
-    hub.add_argument("--token", default=os.getenv("BOT_TOKEN"))
-    hub.add_argument("--admins", default=os.getenv("ADMIN_IDS", ""))
-    hub.add_argument("--secret", default=os.getenv("HUB_SECRET", "change-me"))
-    hub.add_argument("--host", default="0.0.0.0")
-    hub.add_argument("--port", type=int, default=DEFAULT_PORT)
+    hub.add_argument("--token", default=CONFIG["BOT_TOKEN"])
+    hub.add_argument("--admins", default=",".join(str(item) for item in CONFIG["ADMIN_IDS"]))
+    hub.add_argument("--secret", default=CONFIG["HUB_SECRET"])
+    hub.add_argument("--host", default=CONFIG["HUB_HOST"])
+    hub.add_argument("--port", type=int, default=CONFIG["HUB_PORT"])
 
     agent = sub.add_parser("agent", help="run agent")
-    agent.add_argument("--hub", required=True, help="Hub URL, e.g. http://host:8000")
-    agent.add_argument("--device-id", default=str(uuid.uuid4())[:8])
-    agent.add_argument("--name", default=socket.gethostname())
-    agent.add_argument("--secret", default=os.getenv("HUB_SECRET", "change-me"))
-    agent.add_argument("--base-dir", default=os.path.expanduser("~/safe_agent"))
+    agent.add_argument("--hub", default=CONFIG["HUB_URL"], help="Hub URL, e.g. https://example.com")
+    agent.add_argument("--device-id", default=CONFIG["DEVICE_ID"] or str(uuid.uuid4())[:8])
+    agent.add_argument("--name", default=CONFIG["DEVICE_NAME"] or socket.gethostname())
+    agent.add_argument("--secret", default=CONFIG["HUB_SECRET"])
+    agent.add_argument("--base-dir", default=CONFIG["BASE_DIR"])
 
     return parser.parse_args()
 
 
 def main() -> None:
-    args = parse_args()
+    if len(sys.argv) == 1:
+        args = argparse.Namespace(
+            mode=CONFIG["MODE"],
+            token=CONFIG["BOT_TOKEN"],
+            admins=",".join(str(item) for item in CONFIG["ADMIN_IDS"]),
+            secret=CONFIG["HUB_SECRET"],
+            host=CONFIG["HUB_HOST"],
+            port=CONFIG["HUB_PORT"],
+            hub=CONFIG["HUB_URL"],
+            device_id=CONFIG["DEVICE_ID"] or str(uuid.uuid4())[:8],
+            name=CONFIG["DEVICE_NAME"] or socket.gethostname(),
+            base_dir=CONFIG["BASE_DIR"],
+        )
+    else:
+        args = parse_args()
     if args.mode == "hub":
         if not args.token:
-            raise SystemExit("Bot token required. Use --token or BOT_TOKEN env var.")
+            raise SystemExit("Bot token required. Set CONFIG['BOT_TOKEN'] or use --token.")
         admins = [int(item) for item in args.admins.split(",") if item.strip()]
         if not admins:
-            raise SystemExit("Admin IDs required. Use --admins or ADMIN_IDS env var.")
+            raise SystemExit("Admin IDs required. Set CONFIG['ADMIN_IDS'] or use --admins.")
         bot = TelegramBot(args.token, admins)
         hub = HubState(args.secret)
         hub_loop(bot, hub, args.host, args.port)
