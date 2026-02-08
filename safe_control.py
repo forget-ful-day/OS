@@ -195,7 +195,11 @@ class TelegramBot:
 
     def _post(self, method: str, payload: Dict[str, Any]) -> Dict[str, Any]:
         response = requests.post(f"{self.api_base}/{method}", json=payload, timeout=30)
-        response.raise_for_status()
+        try:
+            response.raise_for_status()
+        except Exception as exc:  # pragma: no cover - network
+            detail = response.text.strip()
+            raise RuntimeError(f"Telegram API error: {exc} | {detail}") from exc
         return response.json()
 
     def send_message(self, chat_id: int, text: str, reply_markup: Optional[Dict[str, Any]] = None) -> None:
@@ -407,10 +411,14 @@ def hub_loop(bot: TelegramBot, hub: HubState, host: str, port: int) -> None:
     server = HubServer((host, port), hub)
     threading.Thread(target=server.serve_forever, daemon=True).start()
 
-    bot.send_message(
-        next(iter(bot.admin_ids)),
-        f"Хаб запущен на {host}:{port}. Команда /menu для управления.",
-    )
+    for admin_id in bot.admin_ids:
+        try:
+            bot.send_message(
+                admin_id,
+                f"Хаб запущен на {host}:{port}. Команда /menu для управления.",
+            )
+        except Exception as exc:  # pragma: no cover - network
+            print(f"Не удалось отправить сообщение админу {admin_id}: {exc}")
 
     while True:
         for update in bot.fetch_updates():
