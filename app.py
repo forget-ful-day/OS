@@ -9,7 +9,7 @@ from typing import Optional
 import aiosqlite
 from aiogram import Bot, Dispatcher, F, Router
 from aiogram.enums import ChatMemberStatus, ParseMode
-from aiogram.exceptions import TelegramBadRequest
+from aiogram.exceptions import TelegramBadRequest, TelegramNetworkError
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
@@ -669,8 +669,12 @@ async def build_routers(ctx: AppContext):
     async def refresh(call: CallbackQuery):
         channels = await ctx.db.list_channels()
         prices = json.loads(await ctx.db.get_setting("prices", "{}"))
-        await call.message.edit_reply_markup(reply_markup=payment_keyboard(channels, prices))
-        await call.answer("Обновлено ✅")
+        try:
+            await call.message.edit_reply_markup(reply_markup=payment_keyboard(channels, prices))
+            await call.answer("Обновлено ✅")
+        except TelegramNetworkError:
+            logging.warning("Сеть недоступна при обновлении списка каналов")
+            await call.answer("Сеть Telegram временно недоступна, попробуйте ещё раз", show_alert=True)
 
     @payment_router.callback_query(F.data.startswith("pick_channel:"))
     async def pick_channel(call: CallbackQuery, state: FSMContext):
@@ -681,18 +685,26 @@ async def build_routers(ctx: AppContext):
             return
         prices = json.loads(await ctx.db.get_setting("prices", "{}"))
         await state.update_data(channel_id=channel_id)
-        await call.message.edit_text(
-            f"Канал: {channel[1]}\nВыберите период:",
-            reply_markup=duration_keyboard(prices),
-        )
-        await call.answer()
+        try:
+            await call.message.edit_text(
+                f"Канал: {channel[1]}\nВыберите период:",
+                reply_markup=duration_keyboard(prices),
+            )
+            await call.answer()
+        except TelegramNetworkError:
+            logging.warning("Сеть недоступна при выборе канала")
+            await call.answer("Сеть Telegram временно недоступна, попробуйте ещё раз", show_alert=True)
 
     @payment_router.callback_query(F.data == "back_to_channels")
     async def back_to_channels(call: CallbackQuery):
         channels = await ctx.db.list_channels()
         prices = json.loads(await ctx.db.get_setting("prices", "{}"))
-        await call.message.edit_text("Выберите канал:", reply_markup=payment_keyboard(channels, prices))
-        await call.answer()
+        try:
+            await call.message.edit_text("Выберите канал:", reply_markup=payment_keyboard(channels, prices))
+            await call.answer()
+        except TelegramNetworkError:
+            logging.warning("Сеть недоступна при возврате к списку каналов")
+            await call.answer("Сеть Telegram временно недоступна, попробуйте ещё раз", show_alert=True)
 
     @payment_router.callback_query(F.data.startswith("pick_duration:"))
     async def pick_duration(call: CallbackQuery, state: FSMContext):
@@ -703,11 +715,15 @@ async def build_routers(ctx: AppContext):
             return
         await state.update_data(duration_label=duration_label, amount=prices[duration_label])
         banks = json.loads(await ctx.db.get_setting("banks", "[]"))
-        await call.message.edit_text(
-            f"Период: {duration_label}\nСумма: {prices[duration_label]} ₽\nВыберите банк:",
-            reply_markup=banks_keyboard(banks),
-        )
-        await call.answer()
+        try:
+            await call.message.edit_text(
+                f"Период: {duration_label}\nСумма: {prices[duration_label]} ₽\nВыберите банк:",
+                reply_markup=banks_keyboard(banks),
+            )
+            await call.answer()
+        except TelegramNetworkError:
+            logging.warning("Сеть недоступна при выборе периода")
+            await call.answer("Сеть Telegram временно недоступна, попробуйте ещё раз", show_alert=True)
 
     @payment_router.callback_query(F.data.startswith("pick_bank:"))
     async def pick_bank(call: CallbackQuery, state: FSMContext):
@@ -715,15 +731,19 @@ async def build_routers(ctx: AppContext):
         phone = await ctx.db.get_setting("phone")
         await state.update_data(bank=bank)
         await state.set_state(PaymentStates.waiting_receipt)
-        await call.message.edit_text(
-            (
-                f"Банк: {bank}\n"
-                f"Переведите сумму на номер: `{phone}`\n"
-                "После оплаты отправьте ФОТО чека в этот чат."
-            ),
-            parse_mode=ParseMode.MARKDOWN,
-        )
-        await call.answer()
+        try:
+            await call.message.edit_text(
+                (
+                    f"Банк: {bank}\n"
+                    f"Переведите сумму на номер: `{phone}`\n"
+                    "После оплаты отправьте ФОТО чека в этот чат."
+                ),
+                parse_mode=ParseMode.MARKDOWN,
+            )
+            await call.answer()
+        except TelegramNetworkError:
+            logging.warning("Сеть недоступна при выборе банка")
+            await call.answer("Сеть Telegram временно недоступна, попробуйте ещё раз", show_alert=True)
 
     @payment_router.message(PaymentStates.waiting_receipt, F.photo)
     async def receipt_received(message: Message, state: FSMContext):
@@ -794,7 +814,7 @@ async def build_routers(ctx: AppContext):
                         text=caption + "\n\n⚠️ Фото чека не удалось прикрепить автоматически.",
                         reply_markup=keyboard,
                     )
-            except TelegramBadRequest:
+            except (TelegramBadRequest, TelegramNetworkError):
                 logging.exception("Не удалось отправить чек администратору %s", admin_id)
 
         await state.clear()
@@ -815,15 +835,37 @@ async def subscription_watcher(ctx: AppContext):
                 try:
                     await ctx.admin_bot.ban_chat_member(channel_id, user_id)
                     await ctx.admin_bot.unban_chat_member(channel_id, user_id, only_if_banned=True)
-                except TelegramBadRequest:
-                    logging.exception("Не удалось удалить пользователя=%s из канала=%s", user_id, channel_id)
+                except TelegramBadRequest as e:
+                    err = str(e).lower()
+                    if "can't remove chat owner" in err:
+                        logging.warning(
+                            "Нельзя удалить владельца канала: пользователь=%s канал=%s",
+                            user_id,
+                            channel_id,
+                        )
+                    elif "not enough rights" in err:
+                        logging.warning(
+                            "Недостаточно прав у бота для удаления пользователя=%s из канала=%s",
+                            user_id,
+                            channel_id,
+                        )
+                    else:
+                        logging.exception("Не удалось удалить пользователя=%s из канала=%s", user_id, channel_id)
+                except TelegramNetworkError:
+                    logging.warning(
+                        "Сеть Telegram недоступна при удалении пользователя=%s из канала=%s",
+                        user_id,
+                        channel_id,
+                    )
+                    continue
+
                 await ctx.db.deactivate_subscription(sub_id)
                 try:
                     await ctx.payment_bot.send_message(
                         user_id,
                         f"Срок подписки истек. Доступ к каналу {channel_id} отключен.",
                     )
-                except TelegramBadRequest:
+                except (TelegramBadRequest, TelegramNetworkError):
                     pass
         except Exception:
             logging.exception("Ошибка фонового обработчика подписок")
