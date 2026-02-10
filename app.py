@@ -56,7 +56,7 @@ def parse_duration(label: str) -> timedelta:
         return timedelta(days=30 * amount)
     if "год" in unit or "лет" in unit or "года" in unit:
         return timedelta(days=365 * amount)
-    raise ValueError(f"Неизвестная единица времени: {unit}")
+    raise ValueError(f"Неизвестная единица времени в периоде: {unit}")
 
 
 class DB:
@@ -125,7 +125,7 @@ class DB:
             "1 день": 50,
             "1 неделя": 100,
             "1 месяц": 110,
-            "1 года": 150,
+            "1 год": 150,
         }
         await self.set_if_missing("phone", phone)
         await self.set_if_missing("banks", json.dumps(banks, ensure_ascii=False))
@@ -375,7 +375,7 @@ def parse_prices_text(raw: str) -> dict[str, int]:
     return result
 
 
-def payment_keyboard(channels, prices):
+def payment_keyboard(channels, _prices):
     rows = []
     for chat_id, title, active in channels:
         if not active:
@@ -652,7 +652,7 @@ async def build_routers(ctx: AppContext):
         channels = await ctx.db.list_channels()
         prices = json.loads(await ctx.db.get_setting("prices", "{}"))
         await call.message.edit_reply_markup(reply_markup=payment_keyboard(channels, prices))
-        await call.answer("Обновлено")
+        await call.answer("Обновлено ✅")
 
     @payment_router.callback_query(F.data.startswith("pick_channel:"))
     async def pick_channel(call: CallbackQuery, state: FSMContext):
@@ -752,7 +752,7 @@ async def build_routers(ctx: AppContext):
             "Новый чек на проверку\n"
             f"Заявка: #{request_id}\n"
             f"Юзер: {message.from_user.full_name} (@{message.from_user.username or '-'})\n"
-            f"User ID: {message.from_user.id}\n"
+            f"ID пользователя: {message.from_user.id}\n"
             f"Канал: {channel[1] if channel else channel_id}\n"
             f"Период: {duration_label}\n"
             f"Сумма: {amount} ₽\n"
@@ -767,7 +767,7 @@ async def build_routers(ctx: AppContext):
                     reply_markup=keyboard,
                 )
             except TelegramBadRequest:
-                logging.exception("Cannot deliver receipt to admin %s", admin_id)
+                logging.exception("Не удалось отправить чек администратору %s", admin_id)
 
         await state.clear()
         await message.answer("Чек отправлен на проверку администратору. Ожидайте подтверждения.")
@@ -788,7 +788,7 @@ async def subscription_watcher(ctx: AppContext):
                     await ctx.admin_bot.ban_chat_member(channel_id, user_id)
                     await ctx.admin_bot.unban_chat_member(channel_id, user_id, only_if_banned=True)
                 except TelegramBadRequest:
-                    logging.exception("Failed remove user=%s from channel=%s", user_id, channel_id)
+                    logging.exception("Не удалось удалить пользователя=%s из канала=%s", user_id, channel_id)
                 await ctx.db.deactivate_subscription(sub_id)
                 try:
                     await ctx.payment_bot.send_message(
@@ -798,7 +798,7 @@ async def subscription_watcher(ctx: AppContext):
                 except TelegramBadRequest:
                     pass
         except Exception:
-            logging.exception("Subscription watcher error")
+            logging.exception("Ошибка фонового обработчика подписок")
 
         await asyncio.sleep(60)
 
@@ -812,11 +812,11 @@ async def main():
     db_path = os.getenv("DB_PATH", "bot.sqlite3")
     default_phone = os.getenv("DEFAULT_PHONE", "+79991234567")
     default_banks = [
-        x.strip() for x in os.getenv("DEFAULT_BANKS", "Sber,Tinkoff,VTB").split(",") if x.strip()
+        x.strip() for x in os.getenv("DEFAULT_BANKS", "Сбер,Тинькофф,ВТБ").split(",") if x.strip()
     ]
 
     if not admin_token or not payment_token or not admin_ids_raw:
-        raise RuntimeError("Заполните ADMIN_BOT_TOKEN, PAYMENT_BOT_TOKEN и ADMIN_IDS в .env")
+        raise RuntimeError("Заполните переменные ADMIN_BOT_TOKEN, PAYMENT_BOT_TOKEN и ADMIN_IDS в файле .env")
 
     admin_ids = parse_admin_ids(admin_ids_raw)
 

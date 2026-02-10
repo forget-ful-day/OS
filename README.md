@@ -1,4 +1,4 @@
-# Telegram dual-bot subscription system
+# Система подписок Telegram с двумя ботами
 
 Система из двух ботов:
 
