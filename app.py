@@ -14,6 +14,7 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import (
+    BufferedInputFile,
     CallbackQuery,
     ChatMemberUpdated,
     InlineKeyboardButton,
@@ -406,6 +407,23 @@ def duration_keyboard(prices: dict[str, int]):
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
+
+async def download_photo_bytes(source_bot: Bot, source_file_id: str) -> Optional[tuple[bytes, str]]:
+    """Скачивает фото через одного бота и возвращает байты + имя файла."""
+    try:
+        tg_file = await source_bot.get_file(source_file_id)
+        if not tg_file.file_path:
+            return None
+        stream = await source_bot.download_file(tg_file.file_path)
+        payload = stream.read()
+        if not payload:
+            return None
+        filename = tg_file.file_path.rsplit("/", 1)[-1] or "receipt.jpg"
+        return payload, filename
+    except Exception:
+        logging.exception("Ошибка подготовки изображения чека для пересылки")
+        return None
+
 def banks_keyboard(banks: list[str]):
     rows = []
     for bank in banks:
@@ -758,14 +776,24 @@ async def build_routers(ctx: AppContext):
             f"Сумма: {amount} ₽\n"
             f"Время: {format_dt(now_utc())}"
         )
+        photo_payload = await download_photo_bytes(ctx.payment_bot, receipt)
+
         for admin_id in ctx.admin_ids:
             try:
-                await ctx.admin_bot.send_photo(
-                    chat_id=admin_id,
-                    photo=receipt,
-                    caption=caption,
-                    reply_markup=keyboard,
-                )
+                if photo_payload is not None:
+                    payload, filename = photo_payload
+                    await ctx.admin_bot.send_photo(
+                        chat_id=admin_id,
+                        photo=BufferedInputFile(payload, filename=filename),
+                        caption=caption,
+                        reply_markup=keyboard,
+                    )
+                else:
+                    await ctx.admin_bot.send_message(
+                        chat_id=admin_id,
+                        text=caption + "\n\n⚠️ Фото чека не удалось прикрепить автоматически.",
+                        reply_markup=keyboard,
+                    )
             except TelegramBadRequest:
                 logging.exception("Не удалось отправить чек администратору %s", admin_id)
 
